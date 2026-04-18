@@ -1,0 +1,2232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="theme-color" content="#0057FF"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-title" content="Mente Activa"/>
+<title>Mente Activa – Neuro PlayKit™</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800;900&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --p:#0057FF;--pdk:#003FCC;--p2:#4B8EFF;
+  --teal:#00C9A7;--tdk:#009E84;
+  --green:#52c41a;--gdk:#389e0d;
+  --orange:#fa8c16;--odk:#d46b08;
+  --purple:#722ed1;--pudk:#531dab;
+  --pink:#f06595;--pkdk:#c2255c;
+  --red:#f5222d;--yellow:#fadb14;
+  --bg:#F4F7FF;--bg2:#EBF0FF;--bg3:#DDE6FF;
+  --card:#fff;--border:#E4EAFF;
+  --text:#0D1B3E;--text2:#3D5080;--muted:#8FA3C8;
+  --shadow:0 4px 20px rgba(0,87,255,.10);
+  --shadow-lg:0 12px 40px rgba(0,87,255,.18);
+  --r:18px;--fd:'Baloo 2',cursive;--fb:'Nunito',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%}
+body{font-family:var(--fb);background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;min-height:100dvh;overflow-x:hidden}
+
+/* ══ SPLASH ══ */
+#splash{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(160deg,#0057FF 0%,#001A80 60%,#0F3460 100%);transition:opacity .7s}
+#splash.out{opacity:0;pointer-events:none}
+.sp-logo{font-size:80px;animation:spPop .9s cubic-bezier(.34,1.56,.64,1);margin-bottom:12px;filter:drop-shadow(0 8px 24px rgba(0,0,0,.3))}
+@keyframes spPop{from{transform:scale(0) rotate(-20deg)}to{transform:scale(1) rotate(0)}}
+.sp-title{font-family:var(--fd);font-size:3rem;font-weight:900;color:#fff;letter-spacing:-1.5px;margin-bottom:4px}
+.sp-sub{font-size:.9rem;color:rgba(255,255,255,.6);margin-bottom:18px}
+.sp-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:7px 16px;font-size:.78rem;font-weight:800;color:rgba(255,255,255,.85)}
+.sp-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+.sp-progress{width:200px;height:4px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden;margin-top:32px}
+.sp-bar{height:100%;background:linear-gradient(90deg,var(--teal),#00E5C4);border-radius:999px;width:0;transition:width 2.4s cubic-bezier(.4,0,.2,1)}
+
+/* ══ TOAST ══ */
+#toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:#0D1B3E;color:#fff;padding:11px 22px;border-radius:30px;font-weight:800;
+  font-size:.88rem;z-index:9999;opacity:0;pointer-events:none;
+  transition:opacity .25s,transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space:nowrap;max-width:92vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ MODALES ══ */
+.modal{display:none;position:fixed;inset:0;background:rgba(13,27,62,.65);z-index:8000;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal.on{display:flex}
+.msheet{background:var(--card);border-radius:28px 28px 0 0;padding:22px 18px 36px;width:100%;max-width:430px;
+  text-align:center;animation:slideUp .35s cubic-bezier(.34,1.2,.64,1);max-height:92dvh;overflow-y:auto}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhandle{width:40px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 16px}
+
+/* ══ NAVEGACIÓN ══ */
+#screens{position:relative}
+.screen{display:none;min-height:100dvh;padding-bottom:84px;animation:fadeUp .22s ease}
+.screen.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;
+  background:var(--card);border-top:1.5px solid var(--border);padding:7px 4px 16px;
+  display:flex;z-index:100;box-shadow:0 -4px 24px rgba(0,87,255,.08)}
+.nb{flex:1;border:none;background:transparent;border-radius:12px;padding:7px 2px;
+  font-size:.58rem;font-weight:800;color:var(--muted);cursor:pointer;font-family:var(--fb);
+  display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .15s}
+.nb .ni{font-size:1.3rem;line-height:1;transition:transform .2s}
+.nb.on{color:var(--p)}.nb.on .ni{transform:scale(1.18)}
+
+/* ══ BOTONES ══ */
+.btn{width:100%;border:none;border-radius:999px;padding:13px 18px;font-size:.92rem;font-weight:800;
+  color:#fff;cursor:pointer;font-family:var(--fb);transition:transform .12s,box-shadow .12s;
+  margin-top:10px;display:block;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.btn:active{transform:scale(.96);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.btn-p  {background:linear-gradient(135deg,var(--p),var(--pdk))}
+.btn-g  {background:linear-gradient(135deg,var(--green),var(--gdk))}
+.btn-o  {background:linear-gradient(135deg,var(--orange),var(--odk))}
+.btn-t  {background:linear-gradient(135deg,var(--teal),var(--tdk))}
+.btn-pu {background:linear-gradient(135deg,var(--purple),var(--pudk))}
+.btn-pk {background:linear-gradient(135deg,var(--pink),var(--pkdk))}
+.btn-gold{background:linear-gradient(135deg,#fadb14,#d4b106);color:var(--text)}
+.btn-gray{background:linear-gradient(135deg,#8FA3C8,#6B7FA0)}
+.btn-sm{padding:9px 16px;font-size:.8rem;width:auto;display:inline-block;margin-top:0}
+.card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);border:1.5px solid var(--border)}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 0;margin-bottom:16px;gap:8px}
+.tb-brand{font-family:var(--fd);font-size:1rem;font-weight:900;color:var(--p)}
+.tb-nk{font-size:.65rem;font-weight:800;color:var(--teal);background:rgba(0,201,167,.1);border-radius:999px;padding:2px 8px}
+.back{background:var(--card);border:1.5px solid var(--border);border-radius:999px;padding:7px 14px;
+  font-weight:800;font-size:.8rem;color:var(--text2);cursor:pointer;font-family:var(--fb);box-shadow:var(--shadow)}
+.field{width:100%;border:2px solid var(--border);border-radius:12px;padding:11px 14px;
+  font-size:.92rem;font-weight:700;color:var(--text);font-family:var(--fb);background:var(--card);outline:none;transition:border-color .15s}
+.field:focus{border-color:var(--p)}
+.prog{background:var(--bg2);border-radius:999px;height:8px;overflow:hidden;margin-bottom:14px}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--p),var(--teal));border-radius:999px;transition:width .4s}
+
+/* ══ HOME ══ */
+.hero-home{background:linear-gradient(160deg,#0057FF,#001A80);padding:26px 18px 24px;
+  position:relative;overflow:hidden;margin-bottom:0}
+.hero-home::before{content:'';position:absolute;right:-40px;top:-40px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hero-home::after{content:'🧠';position:absolute;right:18px;bottom:10px;font-size:5.5rem;opacity:.1}
+.hh-nk{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:5px 13px;font-size:.72rem;font-weight:800;color:rgba(255,255,255,.85);margin-bottom:12px}
+.hh-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 1.5s infinite}
+.hh-name{font-family:var(--fd);font-size:1.5rem;font-weight:900;color:#fff;margin-bottom:4px;line-height:1.2}
+.hh-sub{font-size:.83rem;color:rgba(255,255,255,.65);line-height:1.5;margin-bottom:16px}
+.lv-wrap{background:rgba(255,255,255,.12);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:12px}
+.lv-info{font-family:var(--fd);font-size:.85rem;font-weight:900;color:#fff;white-space:nowrap}
+.lv-bar-bg{flex:1;background:rgba(255,255,255,.2);border-radius:999px;height:8px;overflow:hidden}
+.lv-bar-fill{height:100%;background:#fff;border-radius:999px;transition:width .5s}
+.lv-pts{font-size:.78rem;font-weight:900;color:rgba(255,255,255,.85);white-space:nowrap}
+.stats-row{display:flex;gap:8px;padding:14px 14px 0}
+.stat{flex:1;background:var(--card);border-radius:13px;padding:10px;text-align:center;box-shadow:var(--shadow);border:1.5px solid var(--border)}
+.sv{font-family:var(--fd);font-size:1.3rem;font-weight:900;color:var(--p)}
+.sl{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.mode-strip{display:flex;gap:2px;background:var(--border);border-radius:999px;padding:3px;margin:14px 14px 0}
+.mtab{flex:1;border:none;border-radius:999px;padding:10px;font-size:.82rem;font-weight:800;cursor:pointer;font-family:var(--fb);transition:all .2s;background:transparent;color:var(--muted)}
+.mtab.on{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+#kidPanel,#parentPanel{padding:14px}
+
+/* ══ MÓDULOS GRID ══ */
+.sec-title{font-family:var(--fd);font-size:1rem;font-weight:900;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.mod-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.mtile{border-radius:var(--r);padding:16px 12px;cursor:pointer;display:flex;flex-direction:column;
+  align-items:center;gap:7px;box-shadow:var(--shadow);transition:transform .14s,box-shadow .14s;
+  text-align:center;position:relative;overflow:hidden;color:#fff;border:none}
+.mtile:active{transform:scale(.95);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.mtile .ico{font-size:2.3rem;line-height:1}
+.mtile .nm{font-family:var(--fd);font-size:.9rem;font-weight:900}
+.mtile .ds{font-size:.68rem;opacity:.8;font-weight:600}
+.mtile .nk{position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.18);border-radius:99px;padding:2px 6px;font-size:.55rem;font-weight:900}
+.mtile .lk{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.22);border-radius:99px;padding:2px 7px;font-size:.62rem;font-weight:900}
+.c1{background:linear-gradient(145deg,#4dabf7,#1971c2)}
+.c2{background:linear-gradient(145deg,#52c41a,#237804)}
+.c3{background:linear-gradient(145deg,#fa8c16,#ad4e00)}
+.c4{background:linear-gradient(145deg,#722ed1,#391085)}
+.c5{background:linear-gradient(145deg,#00C9A7,#009E84)}
+.c6{background:linear-gradient(145deg,#1a1a2e,#302b63)}
+.c7{background:linear-gradient(145deg,#f06595,#c2255c)}
+.c8{background:linear-gradient(145deg,#F59E0B,#EF4444)}
+.c9{background:linear-gradient(145deg,#4158D0,#C850C0)}
+.c10{background:linear-gradient(145deg,#0f3460,#16213e)}
+
+/* Misiones */
+.miss{background:var(--card);border-radius:13px;padding:11px 13px;margin-bottom:7px;
+  display:flex;align-items:center;gap:11px;box-shadow:0 2px 8px rgba(0,87,255,.06);border:1.5px solid var(--border);cursor:pointer}
+.miss.done{opacity:.4}
+.miss-ico{font-size:1.4rem;flex-shrink:0}
+.miss-lbl{flex:1;font-size:.86rem;font-weight:700;color:var(--text)}
+.miss-pts{background:#FFF4E6;color:var(--odk);padding:3px 8px;border-radius:99px;font-size:.72rem;font-weight:900}
+
+/* Panel padres */
+.p-wrap{background:#0B1629;margin:-14px;padding:16px 14px 20px;border-radius:0 0 var(--r) var(--r)}
+.p-stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.p-stat{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07);border-radius:13px;padding:12px;text-align:center}
+.p-sv{font-family:var(--fd);font-size:1.7rem;font-weight:900;display:block;margin-bottom:2px}
+.p-sl{font-size:.62rem;color:#475569;font-weight:700;text-transform:uppercase}
+.pmenu-item{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:13px;
+  padding:13px 14px;margin-bottom:9px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .15s}
+.pmenu-item:active{transform:scale(.98)}
+.pm-ico{font-size:1.8rem;flex-shrink:0}
+.pm-title{font-family:var(--fd);font-size:.9rem;font-weight:900;color:#F1F5F9;margin-bottom:2px}
+.pm-sub{font-size:.74rem;color:#64748B;font-weight:700}
+.tip-card{border-radius:13px;padding:12px 14px;margin-bottom:9px}
+.tc-b{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.14);color:#BAE6FD}
+.tc-g{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.14);color:#A7F3D0}
+.tc-o{background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.14);color:#FED7AA}
+.tc-pk{background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.14);color:#FBCFE8}
+.tt{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.3px;opacity:.7;margin-bottom:3px}
+.th{font-size:.87rem;font-weight:900;margin-bottom:2px}
+.tp{font-size:.78rem;line-height:1.5;opacity:.82}
+
+/* Premium wall */
+.pw{background:linear-gradient(145deg,var(--p),var(--pdk));border-radius:var(--r);padding:20px 16px;text-align:center;margin-bottom:14px;box-shadow:var(--shadow-lg)}
+.pw-f{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border-radius:10px;padding:8px 11px;color:#E2E8F0;font-size:.8rem;font-weight:700;margin-bottom:7px}
+
+/* ══ JUEGOS ══ */
+.game-area{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);border:1.5px solid var(--border);margin-bottom:14px}
+.game-title{font-family:var(--fd);font-size:1rem;font-weight:900;color:var(--p);margin-bottom:8px}
+.star-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.star-btn{aspect-ratio:1;border:2px solid var(--border);border-radius:12px;font-size:1.8rem;background:var(--bg2);cursor:pointer;transition:all .15s}
+.star-btn:active{transform:scale(.88)}
+.star-btn.ok{background:#F0FFF4;border-color:var(--green)}
+.star-btn.no{background:#FFF1F0;border-color:var(--red)}
+.hud-row{display:flex;gap:7px;margin-bottom:12px}
+.hud{flex:1;background:var(--bg2);border-radius:11px;padding:9px;text-align:center;border:1.5px solid var(--border)}
+.hv{font-family:var(--fd);font-size:1.2rem;font-weight:900;color:var(--p)}
+.hl{font-size:.6rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.opt-btn{width:100%;border:2px solid var(--border);background:var(--card);border-radius:12px;padding:11px 14px;margin-bottom:7px;font-size:.88rem;font-weight:700;cursor:pointer;text-align:left;font-family:var(--fb);color:var(--text);transition:all .15s}
+.opt-btn:active{transform:scale(.98)}
+
+/* ══ LABERINTOS ══ */
+#labCanvas{width:100%;height:auto;display:block;border-radius:14px;border:2px solid var(--border);box-shadow:var(--shadow)}
+.dpad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;width:155px;margin:10px auto}
+.db{border:2px solid var(--border);border-radius:12px;padding:13px;font-size:1.3rem;cursor:pointer;
+  background:var(--card);box-shadow:var(--shadow);font-weight:900;transition:transform .1s;display:flex;align-items:center;justify-content:center}
+.db:active{transform:scale(.86);background:var(--bg2)}
+
+/* ══ CALENDARIO ══ */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:14px}
+.cal-day{border-radius:9px;padding:3px 2px 5px;min-height:50px;cursor:pointer;background:var(--card);
+  border:1.5px solid var(--border);display:flex;flex-direction:column;align-items:center;gap:1px;transition:transform .12s}
+.cal-day:active{transform:scale(.92)}
+.cal-day.empty{background:transparent;border-color:transparent;cursor:default}
+.cal-day.today{border-color:var(--p);background:#EBF1FF}
+.cal-day.done{border-color:var(--green)}
+.cal-day.partial{border-color:var(--orange)}
+.cal-day.none{border-color:var(--red);background:#FFF1F0}
+.day-num{font-size:.72rem;font-weight:900;color:var(--text2)}
+.day-star{font-size:1rem;line-height:1}
+.habit-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.habit-row:last-child{border-bottom:none}
+.h-ico{font-size:1.5rem;flex-shrink:0;width:36px;text-align:center}
+.h-info{flex:1}
+.h-name{font-size:.88rem;font-weight:800;color:var(--text)}
+.h-sub{font-size:.7rem;color:var(--muted);font-weight:700}
+.h-status{flex-shrink:0;width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:2px solid var(--border);background:var(--bg2);cursor:pointer;transition:all .15s}
+.h-status:active{transform:scale(.88)}
+.star-opts{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.star-opt{border:2.5px solid var(--border);border-radius:14px;padding:12px;text-align:center;cursor:pointer;background:var(--card);transition:all .15s}
+.star-opt.on{border-color:var(--p);background:#EBF1FF}
+.star-opt:active{transform:scale(.95)}
+
+/* ══ ESTUDIO TIMER ══ */
+.timer-ring-wrap{position:relative;width:200px;height:200px;margin:0 auto 16px}
+.timer-ring-bg{fill:none;stroke:var(--border);stroke-width:10}
+.timer-ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .95s linear,stroke .3s;transform-origin:center;transform:rotate(-90deg)}
+.timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.timer-time{font-family:var(--fd);font-size:2.8rem;font-weight:900;line-height:1;color:var(--text)}
+.timer-lbl{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.t-controls{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
+.tc{border:none;border-radius:999px;font-weight:900;cursor:pointer;font-family:var(--fb);transition:transform .12s;box-shadow:var(--shadow)}
+.tc:active{transform:scale(.93)}
+.tc-play{background:linear-gradient(135deg,var(--p),var(--pdk));color:#fff;padding:15px 30px;font-size:.95rem}
+.tc-stop{background:var(--card);color:var(--red);border:2px solid var(--red);padding:13px 18px;font-size:.88rem}
+.tc-skip{background:var(--card);color:var(--teal);border:2px solid var(--teal);padding:13px 18px;font-size:.88rem}
+.ex-card{border-radius:20px;padding:20px 16px;text-align:center;background:linear-gradient(135deg,var(--orange),var(--odk));color:#fff;margin-bottom:12px;box-shadow:var(--shadow)}
+.ex-emoji{font-size:4rem;display:block;margin-bottom:8px;animation:exB .6s cubic-bezier(.34,1.56,.64,1) infinite alternate}
+@keyframes exB{from{transform:scale(1) translateY(0)}to{transform:scale(1.1) translateY(-5px)}}
+.ex-item{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:11px;margin-bottom:7px;border:2px solid var(--border);background:var(--card)}
+.ex-item.active{border-color:var(--orange);background:#FFF4E6}
+
+/* ══ PERFIL ══ */
+.logro-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.logro{border-radius:13px;padding:11px;text-align:center;border:2px solid var(--border);background:var(--card);opacity:.5}
+.logro.on{border-color:var(--yellow);background:#FFFDE7;opacity:1}
+.logro-ico{font-size:1.8rem;display:block;margin-bottom:4px}
+.logro-t{font-size:.74rem;font-weight:800;color:var(--muted)}
+.logro.on .logro-t{color:var(--odk)}
+.logro-s{font-size:.65rem;color:var(--muted);font-weight:700}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- ══ SPLASH ══ -->
+<div id="splash">
+  <span class="sp-logo">🧠</span>
+  <div class="sp-title">Mente Activa</div>
+  <div class="sp-sub">Entrenamiento inteligente para niños</div>
+  <div class="sp-badge"><div class="sp-dot"></div>Powered by <strong style="color:var(--teal);margin-left:3px">Neuro PlayKit™</strong></div>
+  <div class="sp-progress"><div class="sp-bar" id="spBar"></div></div>
+</div>
+
+<!-- ══ MODAL PREMIUM ══ -->
+<div class="modal" id="modalPremium">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div style="font-size:3rem;margin-bottom:8px">💎</div>
+    <div style="font-family:var(--fd);font-size:1.3rem;font-weight:900;color:var(--text);margin-bottom:5px">Mente Activa Premium</div>
+    <p style="font-size:.84rem;color:var(--text2);line-height:1.6;margin-bottom:14px">Todo el contenido desbloqueado para apoyar a tu hijo/a con TDAH</p>
+    <div style="background:var(--bg2);border-radius:12px;padding:13px;margin-bottom:12px;border:1.5px solid var(--border)">
+      <div style="display:grid;gap:6px;font-size:.83rem;font-weight:700;color:var(--text2)">
+        <div>✅ 6 categorías de ejercicios educativos</div>
+        <div>✅ 20 laberintos interactivos</div>
+        <div>✅ Calendario hábitos + sistema de premios</div>
+        <div>✅ Modo Estudio Pomodoro + pausas activas</div>
+        <div>✅ Fichas imprimibles PDF</div>
+        <div>✅ Reportes semanales de progreso</div>
+        <div>✅ Guía TDAH completa (30 técnicas)</div>
+        <div>✅ Nuevos packs cada mes</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <div style="background:var(--bg2);border-radius:12px;padding:12px;text-align:center;border:1.5px solid var(--border)">
+        <div style="font-family:var(--fd);font-size:1.4rem;font-weight:900;color:var(--p)">$1.990</div>
+        <div style="font-size:.72rem;color:var(--muted);font-weight:700">Pack individual</div>
+      </div>
+      <div style="background:linear-gradient(135deg,var(--orange),var(--odk));border-radius:12px;padding:12px;text-align:center">
+        <div style="font-family:var(--fd);font-size:1.4rem;font-weight:900;color:#fff">$3.990</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.8);font-weight:700">Premium/mes</div>
+      </div>
+    </div>
+    <button class="btn btn-o" id="btnBuyP">🚀 Suscribirme – $3.990/mes</button>
+    <button class="btn btn-gold" id="btnBuyPack">📦 Pack individual – $1.990</button>
+    <button class="btn btn-gray" id="btnCloseP">Ahora no</button>
+  </div>
+</div>
+
+<!-- ══ MODAL ESTRELLA ══ -->
+<div class="modal" id="modalStar">
+  <div class="msheet">
+    <div class="mhandle"></div>
+    <div style="font-family:var(--fd);font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:4px" id="starHabitName">¿Cómo te fue?</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:12px">Elige cómo te fue con este hábito hoy</div>
+    <div class="star-opts">
+      <div class="star-opt" data-v="super"><div style="font-size:2rem;margin-bottom:5px">🌟</div><div style="font-size:.78rem;font-weight:800;color:var(--text)">¡Lo logré!</div><div style="font-size:.68rem;color:var(--muted)">Lo hice genial</div></div>
+      <div class="star-opt" data-v="done"><div style="font-size:2rem;margin-bottom:5px">⭐</div><div style="font-size:.78rem;font-weight:800;color:var(--text)">Lo hice</div><div style="font-size:.68rem;color:var(--muted)">Completado</div></div>
+      <div class="star-opt" data-v="partial"><div style="font-size:2rem;margin-bottom:5px">🌙</div><div style="font-size:.78rem;font-weight:800;color:var(--text)">A medias</div><div style="font-size:.68rem;color:var(--muted)">Casi lo logro</div></div>
+      <div class="star-opt" data-v="miss"><div style="font-size:2rem;margin-bottom:5px">💪</div><div style="font-size:.78rem;font-weight:800;color:var(--text)">No lo hice</div><div style="font-size:.68rem;color:var(--muted)">¡Mañana más!</div></div>
+    </div>
+    <button class="btn btn-p" id="btnConfirmStar">✅ Guardar</button>
+    <button class="btn btn-gray" id="btnCancelStar">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══ SCREENS ══ -->
+<div id="screens">
+
+<!-- ■ HOME ■ -->
+
+<!-- ■ ONBOARDING ■ -->
+<div id="screen-onboarding" style="display:none;position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0057FF,#001A80);flex-direction:column;overflow:hidden">
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;text-align:center">
+    <div id="ob-slide-0">
+      <div style="font-size:80px;margin-bottom:16px;animation:spPop .8s cubic-bezier(.34,1.56,.64,1)">🧠</div>
+      <div style="font-family:var(--fd);font-size:2rem;font-weight:900;color:#fff;margin-bottom:10px;line-height:1.2">Bienvenido a<br>Mente Activa</div>
+      <div style="font-size:.9rem;color:rgba(255,255,255,.7);line-height:1.65;margin-bottom:24px">La app diseñada para niños con TDAH y déficit atencional</div>
+      <div style="background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;margin-bottom:8px;text-align:left;border:1px solid rgba(255,255,255,.12)"><span style="font-size:1.4rem">🎮</span> <span style="font-size:.87rem;font-weight:800;color:#fff">Juegos educativos · Laberintos</span></div>
+      <div style="background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;margin-bottom:8px;text-align:left;border:1px solid rgba(255,255,255,.12)"><span style="font-size:1.4rem">📅</span> <span style="font-size:.87rem;font-weight:800;color:#fff">Hábitos con estrellas y premios</span></div>
+      <div style="background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;text-align:left;border:1px solid rgba(255,255,255,.12)"><span style="font-size:1.4rem">🍅</span> <span style="font-size:.87rem;font-weight:800;color:#fff">Pomodoro con pausas activas</span></div>
+    </div>
+    <div id="ob-slide-1" style="display:none;width:100%">
+      <div style="font-size:60px;margin-bottom:14px">👤</div>
+      <div style="font-family:var(--fd);font-size:1.6rem;font-weight:900;color:#fff;margin-bottom:8px">¿Cómo se llama<br>el niño/a?</div>
+      <div style="background:rgba(255,255,255,.1);border-radius:18px;padding:18px;width:100%;border:1px solid rgba(255,255,255,.15)">
+        <div style="margin-bottom:12px">
+          <div style="font-size:.75rem;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:6px;text-transform:uppercase">Elige un avatar</div>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center" id="ob-avatars">
+            <button class="ob-av on" data-av="🦁" style="width:50px;height:50px;border-radius:50%;border:3px solid #fff;font-size:1.5rem;background:rgba(255,255,255,.2);cursor:pointer">🦁</button>
+            <button class="ob-av" data-av="🐯" style="width:50px;height:50px;border-radius:50%;border:3px solid transparent;font-size:1.5rem;background:rgba(255,255,255,.12);cursor:pointer">🐯</button>
+            <button class="ob-av" data-av="🐸" style="width:50px;height:50px;border-radius:50%;border:3px solid transparent;font-size:1.5rem;background:rgba(255,255,255,.12);cursor:pointer">🐸</button>
+            <button class="ob-av" data-av="🦊" style="width:50px;height:50px;border-radius:50%;border:3px solid transparent;font-size:1.5rem;background:rgba(255,255,255,.12);cursor:pointer">🦊</button>
+            <button class="ob-av" data-av="🐧" style="width:50px;height:50px;border-radius:50%;border:3px solid transparent;font-size:1.5rem;background:rgba(255,255,255,.12);cursor:pointer">🐧</button>
+            <button class="ob-av" data-av="🦋" style="width:50px;height:50px;border-radius:50%;border:3px solid transparent;font-size:1.5rem;background:rgba(255,255,255,.12);cursor:pointer">🦋</button>
+            <button class="ob-av" data-av="🐬" style="width:50px;height:50px;border-radius:50%;border:3px solid transparent;font-size:1.5rem;background:rgba(255,255,255,.12);cursor:pointer">🐬</button>
+            <button class="ob-av" data-av="🦄" style="width:50px;height:50px;border-radius:50%;border:3px solid transparent;font-size:1.5rem;background:rgba(255,255,255,.12);cursor:pointer">🦄</button>
+          </div>
+        </div>
+        <div style="margin-bottom:12px">
+          <div style="font-size:.75rem;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:6px;text-transform:uppercase">Nombre</div>
+          <input id="ob-name" type="text" placeholder="Ej: Lucía, Matías..." maxlength="20"
+            style="width:100%;background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.2);border-radius:12px;padding:12px 14px;font-size:1rem;font-weight:700;color:#fff;font-family:var(--fb);outline:none"/>
+        </div>
+        <div>
+          <div style="font-size:.75rem;font-weight:800;color:rgba(255,255,255,.7);margin-bottom:6px;text-transform:uppercase">Edad</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="ob-ages">
+            <button class="ob-age" data-age="5" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">5</button>
+            <button class="ob-age" data-age="6" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">6</button>
+            <button class="ob-age" data-age="7" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">7</button>
+            <button class="ob-age" data-age="8" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">8</button>
+            <button class="ob-age" data-age="9" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">9</button>
+            <button class="ob-age" data-age="10" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">10</button>
+            <button class="ob-age" data-age="11" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">11</button>
+            <button class="ob-age" data-age="12+" style="flex:1;min-width:40px;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);border-radius:10px;padding:8px;color:rgba(255,255,255,.8);font-size:.85rem;font-weight:800;cursor:pointer;font-family:var(--fb)">12+</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;justify-content:center;padding:12px">
+    <div id="ob-dot-0" style="width:24px;height:8px;border-radius:999px;background:#fff;transition:all .3s"></div>
+    <div id="ob-dot-1" style="width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.3);transition:all .3s"></div>
+  </div>
+  <div style="display:flex;gap:10px;padding:12px 24px 36px">
+    <button id="ob-skip" style="flex:1;border:2px solid rgba(255,255,255,.3);background:transparent;border-radius:999px;padding:13px;font-size:.9rem;font-weight:800;color:rgba(255,255,255,.8);cursor:pointer;font-family:var(--fb)">Omitir</button>
+    <button id="ob-next" style="flex:2;border:none;background:#fff;border-radius:999px;padding:13px;font-size:.9rem;font-weight:900;color:var(--p);cursor:pointer;font-family:var(--fb);box-shadow:0 4px 16px rgba(0,0,0,.2)">Siguiente →</button>
+  </div>
+</div>
+
+<div class="screen on" id="s-home">
+  <div class="hero-home">
+    <div class="hh-nk"><div class="hh-dot"></div>Neuro PlayKit™</div>
+    <div class="hh-name" id="heroName">🧠 Mente Activa</div>
+    <div class="hh-sub" id="heroSub">Entrenamiento inteligente para niños con TDAH y déficit atencional</div>
+    <div class="lv-wrap">
+      <div class="lv-info">Lv.<span id="lvN">1</span> <span id="lvName">Aprendiz</span></div>
+      <div class="lv-bar-bg"><div class="lv-bar-fill" id="lvBar" style="width:0%"></div></div>
+      <div class="lv-pts">⭐ <span id="lvPts">0</span></div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="sv" id="sDia">0</div><div class="sl">🎮 Hoy</div></div>
+    <div class="stat"><div class="sv" id="sRacha">0🔥</div><div class="sl">Racha</div></div>
+    <div class="stat"><div class="sv" id="sTotal">0</div><div class="sl">⭐ Total</div></div>
+  </div>
+  <div class="mode-strip">
+    <button class="mtab on" id="tabKid">🎮 Para el niño</button>
+    <button class="mtab" id="tabParent">👨‍👩‍👧 Para los padres</button>
+  </div>
+  <!-- Kid Panel -->
+  <div id="kidPanel">
+    <div class="sec-title">🎯 Misiones de hoy</div>
+    <div class="miss" id="m0"><span class="miss-ico">🎮</span><span class="miss-lbl">Juega 1 actividad</span><span class="miss-pts">+20 pts</span></div>
+    <div class="miss" id="m1"><span class="miss-ico">📚</span><span class="miss-lbl">Haz 1 pomodoro de estudio</span><span class="miss-pts">+30 pts</span></div>
+    <div class="miss" id="m2"><span class="miss-ico">🌟</span><span class="miss-lbl">Marca tus hábitos del día</span><span class="miss-pts">+25 pts</span></div>
+    <div class="miss" id="m3"><span class="miss-ico">🧘</span><span class="miss-lbl">Completa una pausa activa</span><span class="miss-pts">+10 pts</span></div>
+    <div class="sec-title" style="margin-top:4px">🎮 Juegos y ejercicios</div>
+    <div class="mod-grid" id="gridGames"></div>
+    <div class="sec-title">📖 Lenguaje y lectura</div>
+    <div class="mod-grid" id="gridLang"></div>
+    <div class="sec-title">📚 Estudiar y organizar</div>
+    <div class="mod-grid" id="gridStudy"></div>
+    <div class="pw" id="kidPW">
+      <div style="font-size:2rem;margin-bottom:6px">🔓</div>
+      <div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:#fff;margin-bottom:4px">¡Desbloquea todo el contenido!</div>
+      <div style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:12px">+50 actividades · Laberintos PRO · Reportes semanales</div>
+      <button class="btn btn-gold" onclick="openPremium()">💎 Ver Premium – desde $1.990</button>
+    </div>
+  </div>
+  <!-- Parent Panel -->
+  <div id="parentPanel" style="display:none">
+    <div class="p-wrap">
+      <div style="font-family:var(--fd);font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:#475569;margin-bottom:12px">Panel de Padres · Neuro PlayKit™</div>
+      <div class="p-stat-grid" id="pStats"></div>
+      <div style="font-family:var(--fd);font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:#475569;margin-bottom:10px">Herramientas</div>
+      <div id="pMenu"></div>
+      <div style="font-family:var(--fd);font-size:.82rem;font-weight:900;text-transform:uppercase;letter-spacing:.4px;color:#475569;margin:14px 0 10px">💡 Consejos TDAH</div>
+      <div id="pTips"></div>
+      <div class="pw" id="parentPW" style="margin-top:14px">
+        <div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:#fff;margin-bottom:4px">💎 Premium – Todo incluido</div>
+        <div style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:12px;line-height:1.4">Desbloquea todo el contenido para apoyar a tu hijo/a</div>
+        <div style="font-family:var(--fd);font-size:1.7rem;font-weight:900;color:#FBBF24;margin-bottom:10px">$3.990/mes</div>
+        <div class="pw-f"><span>📊</span>Reportes semanales personalizados</div>
+        <div class="pw-f"><span>🎮</span>+50 actividades desbloqueadas</div>
+        <div class="pw-f"><span>💡</span>Guía completa TDAH (30 técnicas)</div>
+        <button class="btn btn-gold" onclick="openPremium()">🚀 Suscribirme – $3.990/mes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ■ JUEGOS ■ -->
+<div class="screen" id="s-juegos">
+  <div class="topbar">
+    <div><div class="tb-brand">⭐ Juegos NKT™</div><div class="tb-nk">Neuro PlayKit™</div></div>
+    <button class="back" onclick="goTo('home')">← Inicio</button>
+  </div>
+  <div style="padding:0 14px">
+    <div class="hud-row">
+      <div class="hud"><div class="hv" id="gPts">0</div><div class="hl">Puntos</div></div>
+      <div class="hud"><div class="hv" id="gStreak">0</div><div class="hl">Racha</div></div>
+      <div class="hud"><div class="hv" id="gDone">0</div><div class="hl">Hechos</div></div>
+    </div>
+    <div class="sec-title">🆓 Gratis</div>
+    <div class="mod-grid">
+      <button class="mtile c1" onclick="startGame('stars')"><span class="ico">⭐</span><span class="nm">Atrapa la Estrella</span><span class="ds">Concentración</span><span class="nk">NKT™</span></button>
+      <button class="mtile c5" onclick="startGame('sequence')"><span class="ico">🎨</span><span class="nm">Sigue la Secuencia</span><span class="ds">Memoria</span><span class="nk">NKT™</span></button>
+      <button class="mtile c3" onclick="startGame('intruder')"><span class="ico">🔍</span><span class="nm">El Intruso</span><span class="ds">Atención</span><span class="nk">NKT™</span></button>
+      <button class="mtile c2" onclick="startGame('mathq')"><span class="ico">🔢</span><span class="nm">Reto Matemático</span><span class="ds">Cálculo</span><span class="nk">NKT™</span></button>
+    </div>
+    <div class="sec-title">💎 PRO</div>
+    <div class="mod-grid">
+      <button class="mtile c4" onclick="G.premium?startGame('vf'):openPremium()"><span id="vfLock" class="lk">🔒 PRO</span><span class="ico">✅</span><span class="nm">Verdadero/Falso</span><span class="ds">Comprensión</span><span class="nk">NKT™</span></button>
+      <button class="mtile c9" onclick="G.premium?goTo('laberintos'):openPremium()"><span id="labLock" class="lk">🔒 PRO</span><span class="ico">🧩</span><span class="nm">Laberintos</span><span class="ds">Planificación</span><span class="nk">NKT™</span></button>
+      <button class="mtile c7" onclick="G.premium?goTo('lenguaje'):openPremium()"><span id="lngLock" class="lk">🔒 PRO</span><span class="ico">📖</span><span class="nm">Lenguaje</span><span class="ds">Vocabulario</span><span class="nk">NKT™</span></button>
+      <button class="mtile c8" onclick="G.premium?goTo('lectura'):openPremium()"><span id="lecLock" class="lk">🔒 PRO</span><span class="ico">🔤</span><span class="nm">Lectura Inicial</span><span class="ds">Comprensión</span><span class="nk">NKT™</span></button>
+    </div>
+    <div id="gameArea"></div>
+  </div>
+</div>
+
+<!-- ■ LENGUAJE ■ -->
+<div class="screen" id="s-lenguaje">
+  <div class="topbar">
+    <div><div class="tb-brand">📖 Lenguaje</div><div class="tb-nk">NKT™</div></div>
+    <button class="back" onclick="goTo('home')">← Inicio</button>
+  </div>
+  <div style="padding:0 14px" id="lngContent"></div>
+</div>
+
+<!-- ■ LECTURA ■ -->
+<div class="screen" id="s-lectura">
+  <div class="topbar">
+    <div><div class="tb-brand">🔤 Lectura Inicial</div><div class="tb-nk">NKT™</div></div>
+    <button class="back" onclick="goTo('home')">← Inicio</button>
+  </div>
+  <div style="padding:0 14px" id="lecContent"></div>
+</div>
+
+<!-- ■ MATEMÁTICA ■ -->
+<div class="screen" id="s-matematica">
+  <div class="topbar">
+    <div><div class="tb-brand">🔢 Matemáticas</div><div class="tb-nk">NKT™</div></div>
+    <button class="back" onclick="goTo('home')">← Inicio</button>
+  </div>
+  <div style="padding:0 14px" id="matContent"></div>
+</div>
+
+<!-- ■ LABERINTOS ■ -->
+<div class="screen" id="s-laberintos">
+  <div class="topbar">
+    <div><div class="tb-brand">🧩 Laberintos</div><div class="tb-nk">NKT™</div></div>
+    <button class="back" onclick="goTo('home')">← Inicio</button>
+  </div>
+  <div style="padding:0 14px" id="labContent"></div>
+</div>
+
+<!-- ■ CALENDARIO ■ -->
+<div class="screen" id="s-calendario">
+  <div class="topbar">
+    <div><div class="tb-brand">📅 Mis Hábitos</div><div class="tb-nk">NKT™</div></div>
+    <button class="back" onclick="goTo('home')">← Inicio</button>
+  </div>
+  <div id="calContent"></div>
+</div>
+
+<!-- ■ ESTUDIO ■ -->
+<div class="screen" id="s-estudio">
+  <div class="topbar">
+    <div><div class="tb-brand">🍅 Modo Estudio</div><div class="tb-nk">NKT™</div></div>
+    <button class="back" onclick="goTo('home')">← Inicio</button>
+  </div>
+  <div style="padding:0 14px" id="estContent"></div>
+</div>
+
+<!-- ■ PERFIL ■ -->
+<div class="screen" id="s-perfil">
+  <div class="topbar">
+    <div><div class="tb-brand">👤 Mi Perfil</div><div class="tb-nk">NKT™</div></div>
+  </div>
+  <div style="padding:0 14px" id="perContent"></div>
+</div>
+
+</div><!-- end screens -->
+
+<!-- ══ BOTTOM NAV ══ -->
+<nav id="nav">
+  <button class="nb on" data-s="home"><span class="ni">🏠</span>Inicio</button>
+  <button class="nb" data-s="juegos"><span class="ni">🎮</span>Juegos</button>
+  <button class="nb" data-s="estudio"><span class="ni">📚</span>Estudiar</button>
+  <button class="nb" data-s="calendario"><span class="ni">📅</span>Hábitos</button>
+  <button class="nb" data-s="perfil"><span class="ni">👤</span>Perfil</button>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════
+   NÚCLEO GLOBAL
+═══════════════════════════════════════════════ */
+const G = {
+  pts:0, streak:0, gamesPlayed:0, pomsDone:0, cyclesDone:0,
+  missions:{games:false,study:false,habits:false,pause:false},
+  completed:{}, premium:false, kidName:'', kidAge:'', kidAvatar:'🦁',
+  packs:[],
+  calRecords:{}, calRewardHistory:[],
+  calHabits:[
+    {id:1,e:'🦷',name:'Lavarme los dientes',m:'mañana'},
+    {id:2,e:'🛏️',name:'Tender la cama',m:'mañana'},
+    {id:3,e:'🎒',name:'Ordenar la mochila',m:'tarde'},
+    {id:4,e:'📚',name:'Hacer las tareas',m:'tarde'},
+    {id:5,e:'🧼',name:'Ducharme',m:'noche'},
+    {id:6,e:'🌙',name:'Acostarme a tiempo',m:'noche'},
+  ],
+  calRewards:[
+    {id:1,e:'🌳',name:'Ir al parque',cost:5},
+    {id:2,e:'🍦',name:'Comer un helado',cost:3},
+    {id:3,e:'🎬',name:'Ver una película juntos',cost:4},
+    {id:4,e:'🚲',name:'Andar en bicicleta',cost:5},
+    {id:5,e:'🍕',name:'Elegir la cena',cost:4},
+    {id:6,e:'🛍️',name:'Ir al mall',cost:8},
+    {id:7,e:'🏊',name:'Ir a nadar',cost:6},
+    {id:8,e:'🎮',name:'1h extra de pantalla',cost:3},
+  ],
+};
+function save(){try{localStorage.setItem('ma_v2',JSON.stringify(G));}catch(e){}}
+function load(){try{const d=localStorage.getItem('ma_v2');if(d)Object.assign(G,JSON.parse(d));}catch(e){}}
+
+/* ══ Toast ══ */
+let _tt;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),2300);}
+
+/* ══ Puntos y nivel ══ */
+const LEVELS=[[0,'Aprendiz'],[60,'Explorador'],[150,'Campeón'],[280,'Superhéroe'],[450,'Leyenda'],[700,'Maestro'],[1000,'Genio']];
+function getLv(){let lv=LEVELS[0];for(const l of LEVELS)if(G.pts>=l[0])lv=l;return lv;}
+function addPts(n){G.pts+=n;save();updateUI();toast('⭐ +'+n+' pts');}
+
+function updateUI(){
+  const lv=getLv();const ni=LEVELS.indexOf(lv);const nx=LEVELS[Math.min(ni+1,LEVELS.length-1)][0];
+  const pct=Math.min(100,Math.round(((G.pts-lv[0])/(nx-lv[0]||1))*100));
+  const $=id=>document.getElementById(id);
+  const set=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+  set('lvN',ni+1);set('lvName',lv[1]);set('lvBar'+'','');set('lvPts',G.pts);set('sDia',G.gamesPlayed+G.pomsDone);set('sRacha',G.streak+'🔥');set('sTotal',G.pts);
+  const bar=$('lvBar');if(bar)bar.style.width=pct+'%';
+  const n=G.kidName||'Campeón';
+  set('heroName','🧠 Hola, '+n+'!');
+  set('heroSub',ni>=4?'¡Eres una leyenda, '+n+'! Tu cerebro es increíble 🌟':'Tu entrenamiento de hoy está listo, '+n+' 💪');
+  set('gPts',G.pts);set('gStreak',G.streak);set('gDone',G.gamesPlayed);
+  // Misiones
+  ['m0','m1','m2','m3'].forEach((id,i)=>{const k=['games','study','habits','pause'][i];const e=$(id);if(e)e.classList.toggle('done',G.missions[k]);});
+  // Iconos PRO/desbloqueado
+  ['vfLock','labLock','lngLock','lecLock'].forEach(id=>{const e=$(id);if(e)e.style.display=G.premium?'none':'block';});
+  // Premium walls
+  const pw1=$('kidPW'),pw2=$('parentPW');if(G.premium){if(pw1)pw1.style.display='none';if(pw2)pw2.style.display='none';}
+  // Parent stats
+  const ps=$('pStats');
+  if(ps)ps.innerHTML=[
+    {v:G.pts,l:'Puntos hijo',c:'#38BDF8'},{v:G.streak+'🔥',l:'Racha días',c:'#34D399'},
+    {v:G.gamesPlayed,l:'Actividades',c:'#FB923C'},{v:G.pomsDone,l:'Pomodoros',c:'#F472B6'}
+  ].map(s=>`<div class="p-stat"><span class="p-sv" style="color:${s.c}">${s.v}</span><span class="p-sl">${s.l}</span></div>`).join('');
+}
+function hasPack(id){
+  if(!G.packs)G.packs=[];
+  return G.packs.includes(id)||G.packs.includes('completo')||G.packs.includes('premium_m')||G.packs.includes('premium_a');
+}
+function isPremium(){
+  if(!G.packs)G.packs=[];
+  return G.packs.includes('premium_m')||G.packs.includes('premium_a');
+}
+
+
+/* ══ Navegación ══ */
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const el=document.getElementById('s-'+id);if(el){el.classList.add('on');el.scrollTop=0;}
+  document.querySelectorAll('.nb').forEach(b=>b.classList.toggle('on',b.dataset.s===id));
+  // Inicializar módulo
+  if(id==='lenguaje')initLng();
+  else if(id==='lectura')initLec();
+  else if(id==='matematica')initMat();
+  else if(id==='laberintos')initLab();
+  else if(id==='calendario')initCal();
+  else if(id==='estudio')initEst();
+  else if(id==='perfil')initPer();
+}
+
+/* ══ Premium ══ */
+var _premFor='';
+
+const PACK_PLANS=[
+  {id:'lenguaje',   label:'Pack Lenguaje',    e:'📖', price:'$1.990', desc:'10 ejercicios de lenguaje',     color:'linear-gradient(135deg,#52c41a,#237804)'},
+  {id:'lectura',    label:'Pack Lectura',     e:'🔤', price:'$1.990', desc:'10 ejercicios de lectura',      color:'linear-gradient(135deg,#00C9A7,#009E84)'},
+  {id:'matematica', label:'Pack Matematicas', e:'🔢', price:'$1.990', desc:'10 ejercicios de matematicas',  color:'linear-gradient(135deg,#fa8c16,#ad4e00)'},
+  {id:'laberintos', label:'Pack Laberintos',  e:'🧩', price:'$1.990', desc:'10 laberintos desbloqueados',   color:'linear-gradient(135deg,#1a1a2e,#302b63)'},
+  {id:'completo',   label:'Pack Completo',    e:'💎', price:'$4.990', desc:'Todos los packs juntos',        color:'linear-gradient(135deg,#0057FF,#001A80)'},
+  {id:'premium_m',  label:'Premium Mensual',  e:'👑', price:'$5.990/mes', desc:'Todo + 20 ej/categoria + novedades', color:'linear-gradient(135deg,#722ed1,#391085)'},
+  {id:'premium_a',  label:'Premium Anual',    e:'🏆', price:'$29.990/año', desc:'Todo + ahorra 37%',        color:'linear-gradient(135deg,#F59E0B,#EF4444)'},
+];
+
+function openPremium(forPack){
+  _premFor=forPack||'';
+  // Render opciones en el modal
+  var el=document.getElementById('premOptions');
+  if(!el){
+    // Agregar div de opciones si no existe
+    var modal=document.getElementById('modalPremium');
+    var sheet=modal.querySelector('.msheet');
+    var grayBtn=document.getElementById('btnCloseP');
+    var optDiv=document.createElement('div');optDiv.id='premOptions';
+    sheet.insertBefore(optDiv,grayBtn);
+    el=optDiv;
+  }
+  // Mostrar packs relevantes
+  var plans=forPack?PACK_PLANS.filter(function(p){return p.id===forPack||p.id==='completo'||p.id.indexOf('premium')>=0;}):PACK_PLANS;
+  el.innerHTML='';
+  plans.forEach(function(p){
+    if(hasPack(p.id)){return;} // ya comprado
+    var div=document.createElement('div');
+    div.style.cssText='background:'+p.color+';border-radius:14px;padding:13px 15px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow)';
+    div.innerHTML='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:1.8rem">'+p.e+'</span><div style="flex:1"><div style="font-family:var(--fd);font-size:.93rem;font-weight:900;color:#fff">'+p.label+'</div><div style="font-size:.74rem;color:rgba(255,255,255,.75);font-weight:700">'+p.desc+'</div></div><div style="font-family:var(--fd);font-size:.95rem;font-weight:900;color:#fff;white-space:nowrap">'+p.price+'</div></div>';
+    div.addEventListener('click',function(){activatePlan(p.id);});
+    el.appendChild(div);
+  });
+  document.getElementById('modalPremium').classList.add('on');
+}
+
+function activatePlan(id){
+  if(!G.packs)G.packs=[];
+  if(!G.packs.includes(id))G.packs.push(id);
+  // completo incluye todos los packs individuales
+  if(id==='completo'){['lenguaje','lectura','matematica','laberintos'].forEach(function(p){if(!G.packs.includes(p))G.packs.push(p);});}
+  // premium incluye todo
+  if(id==='premium_m'||id==='premium_a'){['lenguaje','lectura','matematica','laberintos','completo'].forEach(function(p){if(!G.packs.includes(p))G.packs.push(p);}); G.premium=true;}
+  save(); closePremium();
+  var plan=PACK_PLANS.find(function(p){return p.id===id;});
+  toast('🚀 '+(plan?plan.label:'Pack')+' activado!');
+  updateUI(); renderHomeModules(); lngInit=false; lecInit=false; matInit=false; labInit=false;
+  // Re-renderizar modulo activo
+  var activeScreen=document.querySelector('.screen.on');
+  if(activeScreen){
+    var sid=activeScreen.id.replace('s-','');
+    var inits={lenguaje:initLng,lectura:initLec,matematica:initMat,laberintos:function(){labInit=false;initLab();}};
+    if(inits[sid])inits[sid]();
+  }
+}
+
+function closePremium(){document.getElementById('modalPremium').classList.remove('on');}
+function buyPremium(){activatePlan('premium_m');}
+
+/* ══ Render módulos home ══ */
+const MOD_GAMES=[
+  {id:'juegos',nm:'Juegos NKT™',ds:'Atrapa, secuencias, intrusos',e:'⭐',c:'c1',free:true},
+  {id:'laberintos',nm:'Laberintos',ds:'20 laberintos únicos',e:'🧩',c:'c6',free:false},
+];
+const MOD_LANG=[
+  {id:'lenguaje',nm:'Lenguaje',ds:'Comprensión y vocabulario',e:'📖',c:'c2',free:false},
+  {id:'lectura',nm:'Lectura Inicial',ds:'Oraciones y mini lecturas',e:'🔤',c:'c5',free:false},
+  {id:'matematica',nm:'Matemáticas',ds:'Números, sumas, patrones',e:'🔢',c:'c3',free:false},
+  {id:'calendario',nm:'Mis Hábitos',ds:'Estrellas y premios',e:'🌟',c:'c8',free:true},
+];
+const MOD_STUDY=[
+  {id:'estudio',nm:'Modo Estudio',ds:'Pomodoro + pausas activas',e:'🍅',c:'c4',free:true},
+];
+function renderModGrid(mods,elId){
+  const el=document.getElementById(elId);if(!el)return;el.innerHTML='';
+  mods.forEach(m=>{
+    const locked=!m.free&&!G.premium;
+    const div=document.createElement('button');
+    div.className='mtile '+m.c;
+    div.innerHTML=`${locked?'<span class="lk">🔒 PRO</span>':''}<span class="ico">${m.e}</span><span class="nm">${m.nm}</span><span class="ds">${m.ds}</span><span class="nk">NKT™</span>`;
+    div.addEventListener('click',()=>{if(locked){openPremium();return;}G.gamesPlayed++;G.missions.games=true;save();updateUI();goTo(m.id);});
+    el.appendChild(div);
+  });
+}
+function renderParent(){
+  const MENU=[
+    {ico:'📊',t:'Test evaluación TDAH',s:'Evalúa las 6 áreas',fn:()=>goTo('juegos')},
+    {ico:'📅',t:'Calendario de hábitos',s:'Gestiona premios y logros',fn:()=>goTo('calendario')},
+    {ico:'🍅',t:'Modo Estudio Pomodoro',s:'Técnica adaptada para TDAH',fn:()=>goTo('estudio')},
+    {ico:'📈',t:'Progreso semanal',s:'💎 Reportes y estadísticas',fn:()=>G.premium?toast('📊 Próximamente'):openPremium()},
+    {ico:'💡',t:'Guía TDAH completa',s:'💎 30 estrategias para el hogar',fn:()=>G.premium?toast('💡 Próximamente'):openPremium()},
+  ];
+  const pm=document.getElementById('pMenu');if(pm){pm.innerHTML='';MENU.forEach(m=>{const d=document.createElement('div');d.className='pmenu-item';d.innerHTML=`<span class="pm-ico">${m.ico}</span><div><div class="pm-title">${m.t}</div><div class="pm-sub">${m.s}</div></div><span style="color:#475569;margin-left:auto">›</span>`;d.addEventListener('click',m.fn);pm.appendChild(d);});}
+  const TIPS=[
+    {c:'tc-b',t:'🕒 Rutinas',h:'La rutina es su mejor aliada',p:'Los horarios fijos reducen la ansiedad y mejoran el autocontrol en niños con TDAH.'},
+    {c:'tc-g',t:'🎯 Atención',h:'Tareas en pasos pequeños',p:'En lugar de "haz la tarea", di "primero matemáticas, solo 5 minutos". Las metas pequeñas generan confianza.'},
+    {c:'tc-o',t:'🏃 Movimiento',h:'Ejercicio activa la dopamina',p:'30 min de actividad física reduce la hiperactividad y mejora la concentración — como la medicación pero natural.'},
+    {c:'tc-pk',t:'⭐ Refuerzo',h:'Celebra los pequeños logros',p:'Un elogio específico refuerza el comportamiento. Di "terminaste las 3 preguntas sin levantarte", no solo "muy bien".'},
+    {c:'tc-b',t:'🌙 Sueño',h:'El sueño es medicamento',p:'Ritual fijo: baño, cuento, oscuridad. Evita pantallas 1 hora antes de dormir. El sueño regula la dopamina.'},
+    {c:'tc-g',t:'🧠 Emociones',h:'Nombra las emociones sin juzgar',p:'Cuando se frustre, di "veo que estás enojado, eso es normal". Valida antes de buscar soluciones.'},
+  ];
+  const pt=document.getElementById('pTips');if(pt){pt.innerHTML='';TIPS.forEach(t=>{const d=document.createElement('div');d.className='tip-card '+t.c;d.innerHTML=`<div class="tt">${t.t}</div><div class="th">${t.h}</div><div class="tp">${t.p}</div>`;pt.appendChild(d);});}
+}
+
+/* ═══════════════════════════════════════════════
+   MÓDULO JUEGOS
+═══════════════════════════════════════════════ */
+const INTRUDER_SETS=[
+  {items:['A','A','A','A','A','A','A','A','A','B'],tgt:'B'},
+  {items:['3','3','3','3','3','3','3','3','3','8'],tgt:'8'},
+  {items:['🔵','🔵','🔵','🔵','🔵','🔵','🔵','🔵','🔵','🔴'],tgt:'🔴'},
+  {items:['P','P','P','P','P','P','P','P','P','Q'],tgt:'Q'},
+  {items:['O','O','O','O','O','O','O','O','O','0'],tgt:'0'},
+  {items:['🐱','🐱','🐱','🐱','🐱','🐱','🐱','🐱','🐱','🐶'],tgt:'🐶'},
+  {items:['7','7','7','7','7','7','7','7','7','1'],tgt:'1'},
+  {items:['b','b','b','b','b','b','b','b','b','d'],tgt:'d'},
+  {items:['🌸','🌸','🌸','🌸','🌸','🌸','🌸','🌸','🌸','🌺'],tgt:'🌺'},
+];
+const COLORS=['#F87171','#FB923C','#FCD34D','#4ADE80','#60A5FA','#C084FC'];
+let gSt={type:'',h:0,m:0,r:1,pts:0,streak:0,seq:[],inp:[],seqLv:1,seqSc:0,intH:0,intM:0,mathH:0,mathT:0,vfSet:null,vfIdx:0,vfSc:0};
+
+function startGame(type){
+  G.gamesPlayed++;G.missions.games=true;save();updateUI();
+  gSt.type=type;gSt.h=0;gSt.m=0;gSt.r=1;gSt.pts=0;gSt.streak=0;
+  if(type==='stars')renderStars();
+  else if(type==='sequence'){gSt.seq=[];gSt.inp=[];gSt.seqLv=1;gSt.seqSc=0;renderSequence();}
+  else if(type==='intruder'){gSt.intH=0;gSt.intM=0;renderIntruder();}
+  else if(type==='mathq'){gSt.mathH=0;gSt.mathT=0;renderMathQ();}
+  else if(type==='vf'){gSt.vfSet=VF_SETS[0];gSt.vfIdx=0;gSt.vfSc=0;renderVF();}
+  const ga=document.getElementById('gameArea');if(ga)ga.scrollIntoView({behavior:'smooth'});
+}
+function closeGame(){const ga=document.getElementById('gameArea');if(ga)ga.innerHTML='';}
+
+// ── ATRAPA LA ESTRELLA ──
+function renderStars(){
+  const ga=document.getElementById('gameArea');if(!ga)return;
+  ga.innerHTML=`<div class="game-area">
+    <div class="game-title">⭐ Atrapa la Estrella – Ronda ${gSt.r}/12</div>
+    <div class="hud-row">
+      <div class="hud"><div class="hv" id="gsH">${gSt.h}</div><div class="hl">Aciertos</div></div>
+      <div class="hud"><div class="hv" id="gsM">${gSt.m}</div><div class="hl">Errores</div></div>
+      <div class="hud"><div class="hv" id="gsP">${gSt.pts}</div><div class="hl">Pts</div></div>
+    </div>
+    <div class="star-grid" id="starBoard"></div>
+    <button class="btn btn-gray btn-sm" style="margin-top:10px" onclick="closeGame()">✕ Cerrar</button>
+  </div>`;
+  renderStarBoard();
+}
+function renderStarBoard(){
+  const b=document.getElementById('starBoard');if(!b)return;b.innerHTML='';
+  const tgt=Math.floor(Math.random()*9);
+  const dist=['🔵','🟢','🟠','🔴','🌙','☁️','🧩','🎈','🎭'];
+  for(let i=0;i<9;i++){
+    const btn=document.createElement('button');btn.className='star-btn';
+    btn.textContent=i===tgt?'⭐':dist[Math.floor(Math.random()*dist.length)];
+    const isT=i===tgt;
+    btn.addEventListener('click',()=>{
+      b.querySelectorAll('.star-btn').forEach(x=>{x.disabled=true;x.style.cursor='default';});
+      btn.classList.add(isT?'ok':'no');
+      if(isT){gSt.h++;gSt.pts+=10;gSt.streak++;toast('✅ +10 pts');}
+      else{gSt.m++;gSt.streak=0;toast('❌ Busca la estrella ⭐');}
+      document.getElementById('gsH').textContent=gSt.h;
+      document.getElementById('gsM').textContent=gSt.m;
+      document.getElementById('gsP').textContent=gSt.pts;
+      setTimeout(()=>{
+        gSt.r++;
+        if(gSt.r<=12){const ga=document.getElementById('gameArea');if(ga){ga.querySelector('.game-title').textContent='⭐ Atrapa la Estrella – Ronda '+gSt.r+'/12';renderStarBoard();}}
+        else{addPts(gSt.pts);toast('🏁 Fin: '+gSt.h+'/12 aciertos');closeGame();}
+      },500);
+    });
+    b.appendChild(btn);
+  }
+}
+
+// ── SECUENCIA ──
+function renderSequence(){
+  const ga=document.getElementById('gameArea');if(!ga)return;
+  ga.innerHTML=`<div class="game-area">
+    <div class="game-title">🎨 Sigue la Secuencia</div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:8px">Nivel <span id="sqLv">1</span> · <span id="sqSc">0</span> pts</div>
+    <div id="sqInstr" style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--p);margin-bottom:10px">Observa los colores 👀</div>
+    <div id="sqDisp" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;min-height:52px;margin-bottom:10px"></div>
+    <div id="sqBtns" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:10px"></div>
+    <button class="btn btn-gray btn-sm" onclick="closeGame()">✕ Cerrar</button>
+  </div>`;
+  nextSeq();
+}
+function nextSeq(){
+  gSt.seq.push(Math.floor(Math.random()*COLORS.length));gSt.inp=[];
+  const d=document.getElementById('sqDisp');if(!d)return;
+  d.innerHTML=gSt.seq.map(ci=>`<div style="width:44px;height:44px;border-radius:50%;background:${COLORS[ci]};border:3px solid rgba(255,255,255,.3);box-shadow:0 3px 10px rgba(0,0,0,.15)"></div>`).join('');
+  const ins=document.getElementById('sqInstr');const lv=document.getElementById('sqLv');
+  if(ins)ins.textContent='Mira la secuencia 👀';if(lv)lv.textContent=gSt.seqLv;
+  renderSeqBtns(false);
+  const dots=d.querySelectorAll('div');let i=0;
+  const iv=setInterval(()=>{
+    if(i>0&&dots[i-1])dots[i-1].style.opacity='.4';
+    if(i>=gSt.seq.length){clearInterval(iv);if(ins)ins.textContent='¡Repítela! 👇';renderSeqBtns(true);return;}
+    if(dots[i]){dots[i].style.opacity='1';dots[i].style.transform='scale(1.25)';setTimeout(()=>{if(dots[i])dots[i].style.transform='scale(1)';},300);}i++;
+  },700);
+}
+function renderSeqBtns(en){
+  const c=document.getElementById('sqBtns');if(!c)return;c.innerHTML='';
+  COLORS.forEach((col,ci)=>{
+    const btn=document.createElement('button');
+    btn.style.cssText=`width:52px;height:52px;border-radius:50%;border:3px solid rgba(255,255,255,.25);background:${col};cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.18);transition:transform .12s`;
+    btn.disabled=!en;
+    btn.addEventListener('click',()=>{
+      gSt.inp.push(ci);const pos=gSt.inp.length-1;
+      if(gSt.inp[pos]!==gSt.seq[pos]){
+        const ins=document.getElementById('sqInstr');if(ins)ins.textContent='❌ ¡Inténtalo!';
+        renderSeqBtns(false);setTimeout(nextSeq,1200);return;
+      }
+      if(gSt.inp.length===gSt.seq.length){
+        gSt.seqLv++;gSt.seqSc+=gSt.seq.length*5;addPts(gSt.seq.length*5);
+        const ins=document.getElementById('sqInstr');const sc=document.getElementById('sqSc');
+        if(ins)ins.textContent='✅ ¡Perfecto! Nivel '+gSt.seqLv;if(sc)sc.textContent=gSt.seqSc;
+        renderSeqBtns(false);setTimeout(nextSeq,900);
+      }
+    });
+    c.appendChild(btn);
+  });
+}
+
+// ── INTRUSO ──
+function renderIntruder(){
+  const ga=document.getElementById('gameArea');if(!ga)return;
+  ga.innerHTML=`<div class="game-area">
+    <div class="game-title">🔍 ¿Cuál no es igual?</div>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px">Aciertos: <span id="itH">0</span> · Errores: <span id="itM">0</span></div>
+    <div id="itGrid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:10px"></div>
+    <button class="btn btn-gray btn-sm" onclick="closeGame()">✕ Cerrar</button>
+  </div>`;
+  renderIntruderBoard();
+}
+function renderIntruderBoard(){
+  const set=INTRUDER_SETS[Math.floor(Math.random()*INTRUDER_SETS.length)];
+  const shuffled=[...set.items].sort(()=>Math.random()-.5);
+  const grid=document.getElementById('itGrid');if(!grid)return;grid.innerHTML='';
+  shuffled.forEach(item=>{
+    const btn=document.createElement('button');
+    btn.style.cssText='aspect-ratio:1;border:2px solid var(--border);border-radius:10px;font-size:1.1rem;font-weight:900;background:var(--bg2);cursor:pointer;font-family:var(--fd)';
+    btn.textContent=item;const isT=item===set.tgt;
+    btn.addEventListener('click',()=>{
+      grid.querySelectorAll('button').forEach(b=>b.disabled=true);
+      btn.style.background=isT?'#F0FFF4':'#FFF1F0';btn.style.borderColor=isT?'var(--green)':'var(--red)';
+      if(isT){gSt.intH++;addPts(15);toast('✅ ¡Lo encontraste! +15');}else{gSt.intM++;toast('❌ Ese no es el intruso');}
+      document.getElementById('itH').textContent=gSt.intH;document.getElementById('itM').textContent=gSt.intM;
+      setTimeout(renderIntruderBoard,1000);
+    });
+    grid.appendChild(btn);
+  });
+}
+
+// ── RETO MATEMÁTICO ──
+let mathT=0,mathC=0;
+function renderMathQ(){
+  const ga=document.getElementById('gameArea');if(!ga)return;
+  ga.innerHTML=`<div class="game-area">
+    <div class="game-title">🔢 Reto Matemático – 10 preguntas</div>
+    <div id="mathContent"></div>
+    <button class="btn btn-gray btn-sm" style="margin-top:8px" onclick="closeGame()">✕ Cerrar</button>
+  </div>`;
+  mathT=0;mathC=0;nextMath();
+}
+function nextMath(){
+  if(mathT>=10){addPts(mathC*20);toast('🏆 '+mathC+'/10 correctas! +'+(mathC*20)+' pts');closeGame();return;}
+  const op=Math.random()>.45?'+':'-';const a=Math.floor(Math.random()*10)+1,b=Math.floor(Math.random()*(op==='+'?10:a))+1;
+  const res=op==='+'?a+b:a-b;
+  const wrong=new Set([res]);while(wrong.size<4)wrong.add(Math.max(0,res+Math.floor(Math.random()*7)-3));
+  const opts=[...wrong].sort(()=>Math.random()-.5);mathT++;
+  const el=document.getElementById('mathContent');if(!el)return;
+  el.innerHTML=`<div style="background:var(--bg2);border-radius:13px;padding:16px;text-align:center;margin-bottom:10px;border:1.5px solid var(--border)">
+    <div style="font-family:var(--fd);font-size:2.5rem;font-weight:900;color:var(--text)">${a} ${op} ${b} = ?</div>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:4px">Pregunta ${mathT}/10</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    ${opts.map(n=>`<button onclick="checkMath(${n},${res})" style="border:2px solid var(--border);background:var(--card);border-radius:12px;padding:14px;font-family:var(--fd);font-size:1.5rem;font-weight:900;cursor:pointer;color:var(--text)">${n}</button>`).join('')}
+  </div>`;
+}
+function checkMath(ans,cor){
+  document.querySelectorAll('#mathContent button').forEach(b=>b.disabled=true);
+  if(ans===cor){mathC++;toast('✅ ¡Correcto! +20');}else toast('❌ Era '+cor);
+  setTimeout(nextMath,700);
+}
+
+// ── V/F ──
+const VF_SETS=[
+  {tier:'free',t:'La Bruja',e:'🧙',facts:[{f:'Es una bruja.',c:true},{f:'La bruja vuela en escoba.',c:true},{f:'Vuela en avion.',c:false},{f:'El vestido es morado.',c:true},{f:'La bruja es pelirroja.',c:true},{f:'El gato es blanco.',c:false}]},
+  {tier:'free',t:'El Leon',e:'🦁',facts:[{f:'Es un animal.',c:true},{f:'Vuela.',c:false},{f:'Vive en manada.',c:true},{f:'Tiene plumas.',c:false},{f:'Tiene melena.',c:true},{f:'Come otros animales.',c:true}]},
+  {tier:'free',t:'Las Tijeras',e:'✂️',facts:[{f:'Es un objeto.',c:true},{f:'Es un juguete.',c:false},{f:'Se usa para recortar.',c:true},{f:'Es afilado.',c:true},{f:'Es blando.',c:false},{f:'Lo encuentras en el colegio.',c:true}]},
+  {tier:'pack',t:'El Coche',e:'🚗',facts:[{f:'Es de color rojo.',c:true},{f:'Tiene cuatro ruedas.',c:true},{f:'Es un instrumento musical.',c:false},{f:'Circula por la carretera.',c:true},{f:'Tiene puertas.',c:true},{f:'Lo usan los animales.',c:false}]},
+  {tier:'pack',t:'La Mariposa',e:'🦋',facts:[{f:'La mariposa es un insecto.',c:true},{f:'Sale de una crisalida.',c:true},{f:'Vive en el fondo del mar.',c:false},{f:'Tiene seis patas.',c:true},{f:'Tiene alas coloridas.',c:true},{f:'Come peces.',c:false}]},
+  {tier:'pack',t:'El Perro',e:'🐕',facts:[{f:'El perro ladra.',c:true},{f:'El perro es un reptil.',c:false},{f:'Es el mejor amigo del humano.',c:true},{f:'Tiene cuatro patas.',c:true},{f:'Puede volar.',c:false},{f:'Come carne.',c:true}]},
+  {tier:'pack',t:'El Sol',e:'☀️',facts:[{f:'El sol es una estrella.',c:true},{f:'El sol sale por el oeste.',c:false},{f:'El sol da luz y calor.',c:true},{f:'El sol es mas pequeno que la Tierra.',c:false},{f:'El sol esta muy lejos.',c:true},{f:'De noche el sol desaparece.',c:false}]},
+  {tier:'pack',t:'La Luna',e:'🌙',facts:[{f:'La luna tiene luz propia.',c:false},{f:'La luna rodea la Tierra.',c:true},{f:'En la luna hay aire.',c:false},{f:'La luna cambia de forma.',c:false},{f:'Desde la Tierra vemos la luna.',c:true},{f:'La luna es mas grande que la Tierra.',c:false}]},
+  {tier:'pack',t:'El Pez',e:'🐟',facts:[{f:'El pez vive en el agua.',c:true},{f:'El pez respira con pulmones.',c:false},{f:'El pez tiene escamas.',c:true},{f:'El pez puede vivir sin agua.',c:false},{f:'Algunos peces son de colores.',c:true},{f:'Los peces tienen patas.',c:false}]},
+  {tier:'pack',t:'La Manzana',e:'🍎',facts:[{f:'La manzana es una fruta.',c:true},{f:'Crece bajo la tierra.',c:false},{f:'Contiene vitaminas.',c:true},{f:'Puede ser verde o roja.',c:true},{f:'Crece en el mar.',c:false},{f:'Se puede hacer jugo de manzana.',c:true}]},
+  {tier:'premium',t:'El Volcan',e:'🌋',facts:[{f:'Un volcan puede hacer erupcion.',c:true},{f:'La lava es fria.',c:false},{f:'Los volcanes son montanas.',c:true},{f:'La lava es roca derretida.',c:true},{f:'Los volcanes estan solo en el mar.',c:false},{f:'Un volcan puede ser peligroso.',c:true}]},
+  {tier:'premium',t:'El Pinguino',e:'🐧',facts:[{f:'El pinguino puede volar.',c:false},{f:'El pinguino es un ave.',c:true},{f:'Vive en climas frios.',c:true},{f:'Es un mamifero.',c:false},{f:'Nada muy bien.',c:true},{f:'Vive en el desierto.',c:false}]},
+  {tier:'premium',t:'El Arcoiris',e:'🌈',facts:[{f:'El arcoiris tiene 7 colores.',c:true},{f:'Aparece solo con sol.',c:false},{f:'Se forma con lluvia y sol.',c:true},{f:'El arcoiris es solido.',c:false},{f:'Dura para siempre.',c:false},{f:'Aparece en el cielo.',c:true}]},
+];
+
+function renderVF(){
+  if(!gSt.vfSet){toast('⚠️ Necesitas Premium');return;}
+  const ga=document.getElementById('gameArea'); if(!ga) return;
+  if(gSt.vfIdx>=gSt.vfSet.facts.length){
+    addPts(gSt.vfSc*10);
+    ga.innerHTML='';
+    const d=document.createElement('div'); d.className='game-area'; d.style.textAlign='center';
+    d.innerHTML='<div style="font-size:2.5rem">🏆</div><div style="font-family:var(--fd);font-size:1rem;font-weight:900">¡+'+gSt.vfSc*10+' pts!</div>';
+    const nb=document.createElement('button'); nb.className='btn btn-p btn-sm'; nb.style.marginTop='8px'; nb.textContent='Jugar otro →';
+    nb.addEventListener('click',()=>{gSt.vfSet=VF_SETS[Math.floor(Math.random()*VF_SETS.length)];gSt.vfIdx=0;gSt.vfSc=0;renderVF();}); d.appendChild(nb);
+    const cb=document.createElement('button'); cb.className='btn btn-gray btn-sm'; cb.style.marginTop='6px'; cb.textContent='Cerrar'; cb.addEventListener('click',closeGame); d.appendChild(cb);
+    ga.appendChild(d); return;
+  }
+  const fact=gSt.vfSet.facts[gSt.vfIdx];
+  const correctAnswer=fact.c; // true o false
+  ga.innerHTML='';
+  const d=document.createElement('div'); d.className='game-area';
+  d.innerHTML='<div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--p);margin-bottom:5px">'+gSt.vfSet.t+'</div>'
+    +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:10px">Frase '+(gSt.vfIdx+1)+'/'+gSt.vfSet.facts.length+' · Score: '+gSt.vfSc+'</div>'
+    +'<div style="background:var(--bg2);border-radius:13px;padding:14px;margin-bottom:12px;border:1.5px solid var(--border);font-size:.95rem;font-weight:700;color:var(--text)">&ldquo;'+fact.f+'&rdquo;</div>';
+  const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;margin-bottom:10px';
+  // Botón Verdadero
+  const btnV=document.createElement('button'); btnV.className='btn btn-g btn-sm'; btnV.style.flex='1'; btnV.textContent='✅ Verdadero';
+  // Botón Falso
+  const btnF=document.createElement('button'); btnF.className='btn btn-sm'; btnF.style.cssText='flex:1;background:linear-gradient(135deg,var(--red),#cf1322);color:#fff;border:none;border-radius:999px;padding:9px 14px;font-size:.8rem;font-weight:800;cursor:pointer;margin-top:0'; btnF.textContent='❌ Falso';
+  function handleVF(userAnswer){
+    btnV.disabled=true; btnF.disabled=true;
+    const isOk=(userAnswer===correctAnswer);
+    if(isOk){
+      gSt.vfSc++;
+      (userAnswer===true?btnV:btnF).style.background='#52c41a';
+      toast('✅ ¡Correcto!');
+    } else {
+      (userAnswer===true?btnV:btnF).style.opacity='0.5';
+      (correctAnswer===true?btnV:btnF).style.background='#52c41a';
+      toast('❌ Era '+(correctAnswer?'Verdadero':'Falso'));
+    }
+    gSt.vfIdx++; setTimeout(renderVF, 900);
+  }
+  btnV.addEventListener('click',()=>handleVF(true));
+  btnF.addEventListener('click',()=>handleVF(false));
+  row.appendChild(btnV); row.appendChild(btnF); d.appendChild(row);
+  const cb=document.createElement('button'); cb.className='btn btn-gray btn-sm'; cb.style.marginTop='4px'; cb.textContent='✕ Cerrar'; cb.addEventListener('click',closeGame);
+  d.appendChild(cb); ga.appendChild(d);
+}
+
+function ansVF(ans,cor){
+  const ok=ans===cor;if(ok){gSt.vfSc++;toast('✅ ¡Correcto!');}else toast('❌ Era '+(cor?'Verdadero':'Falso'));
+  gSt.vfIdx++;setTimeout(renderVF,500);
+}
+
+/* ═══════════════════════════════════════════════
+   MÓDULO LENGUAJE
+═══════════════════════════════════════════════ */
+const READINGS=[
+  {tier:'free',t:'El otono',e:'🍂',text:'El otono habia llegado y el bosque se llenaba de colores: rojos, naranjas y amarillos. Hugo llevaba una cesta. Clara recogia hojas para hacer un collage. Tomas buscaba setas con cuidado.',
+   qs:[{q:'Que estacion del ano llego?',opts:['El verano','El otono','La primavera'],c:1},{q:'Que hacia Clara?',opts:['Buscaba setas','Recogia hojas','Comia frutas'],c:1},{q:'Quien buscaba setas?',opts:['Hugo','Clara','Tomas'],c:2}]},
+  {tier:'free',t:'Primer dia de cole',e:'🎒',text:'Valentina se desperto muy contenta porque era su primer dia de colegio. Su mama le ayudo a prepararse. Al llegar, se reencuentro con su amigo Javier. La profesora les propuso hacer un dibujo.',
+   qs:[{q:'Como se desperto Valentina?',opts:['Triste','Muy contenta','Enojada'],c:1},{q:'Quien la ayudo a prepararse?',opts:['Su papa','Su mama','Su hermana'],c:1},{q:'Que propuso la profesora?',opts:['Leer un libro','Cantar','Hacer un dibujo'],c:2}]},
+  {tier:'free',t:'Max el perrito',e:'🐕',text:'Max es el perrito mas feliz del barrio. Tiene orejas grandes. Le encanta correr, saltar y jugar. Lleva un collar con una medalla brillante.',
+   qs:[{q:'Como es Max?',opts:['Triste y aburrido','El mas feliz del barrio','Muy enojado'],c:1},{q:'Que lleva Max en el cuello?',opts:['Una bufanda','Un collar con medalla','Una cinta roja'],c:1},{q:'Que le gusta hacer a Max?',opts:['Dormir todo el dia','Correr, saltar y jugar','Comer y dormir'],c:1}]},
+  {tier:'pack',t:'Leo el pirata',e:'🏴',text:'Leo bajo del barco con su gorro de pirata. En su mano tenia un mapa muy viejo. X marca el lugar, dijo emocionado. Camino por la arena pasando rocas y palmeras. Las gaviotas volaban arriba.',
+   qs:[{q:'Que tenia Leo en la mano?',opts:['Una espada','Un mapa viejo','Una llave'],c:1},{q:'Donde caminaba Leo?',opts:['En el bosque','En la playa','En la ciudad'],c:1},{q:'Quienes volaban arriba?',opts:['Los murcielagos','Las aguilas','Las gaviotas'],c:2}]},
+  {tier:'pack',t:'La abuela Rosa',e:'👵',text:'La abuela Rosa vive en una casita llena de flores. Todos los dias cultiva su jardin. Sus nietos la visitan los fines de semana. Ella siempre les prepara galletas de canela.',
+   qs:[{q:'Donde vive la abuela Rosa?',opts:['En un edificio','En una casita con flores','En el campo'],c:1},{q:'Cuando la visitan los nietos?',opts:['Todos los dias','Los fines de semana','En verano'],c:1},{q:'Que prepara la abuela?',opts:['Galletas de canela','Torta de chocolate','Sopa caliente'],c:0}]},
+  {tier:'pack',t:'El dinosaurio azul',e:'🦕',text:'Dino era un dinosaurio azul que vivia hace millones de anos. Le encantaba nadar y comer plantas verdes. Tenia el cuello muy largo y podia alcanzar las hojas mas altas de los arboles.',
+   qs:[{q:'De que color era Dino?',opts:['Verde','Azul','Rojo'],c:1},{q:'Que comia Dino?',opts:['Otros animales','Plantas verdes','Peces grandes'],c:1},{q:'Por que alcanzaba las hojas mas altas?',opts:['Porque saltaba','Porque tenia el cuello muy largo','Porque volaba'],c:1}]},
+  {tier:'pack',t:'El cohete espacial',e:'🚀',text:'Sofia siempre sono con viajar al espacio. Un dia se convirtio en astronauta. Viajo en un cohete plateado durante tres dias hasta llegar a la luna. Desde alli vio la Tierra azul y pequena.',
+   qs:[{q:'En que sonaba Sofia?',opts:['Ser doctora','Viajar al espacio','Vivir en el mar'],c:1},{q:'Cuantos dias viajo?',opts:['Un dia','Dos dias','Tres dias'],c:2},{q:'Como veia la Tierra desde la luna?',opts:['Grande y roja','Azul y pequena','Verde y grande'],c:1}]},
+  {tier:'premium',t:'El rio magico',e:'🌊',text:'En el bosque encantado habia un rio que brillaba de noche. Los animales iban a beber su agua porque decia que daba fuerza y alegria. El zorro, el conejo y el oso eran sus guardianes.',
+   qs:[{q:'Donde estaba el rio?',opts:['En la ciudad','En el bosque encantado','En las montanas'],c:1},{q:'Que decia el agua del rio?',opts:['Que daba tristeza','Que daba fuerza y alegria','Que daba sueno'],c:1},{q:'Quienes cuidaban el rio?',opts:['El lobo y el oso','El zorro, conejo y oso','Los pajaros'],c:1}]},
+  {tier:'premium',t:'La nube viajera',e:'☁️',text:'Habia una nube que no paraba de viajar por el cielo. Visitaba montanas, ciudades y mares. Cuando lloraba de emocion, llovía en la tierra. Y las plantas le agradecian con flores de colores.',
+   qs:[{q:'Que hacia la nube?',opts:['Siempre estaba quieta','Viajaba por el cielo','Solo estaba en el mar'],c:1},{q:'Que pasaba cuando la nube lloraba?',opts:['Hacia calor','Llovía en la tierra','Salia el arcoiris siempre'],c:1},{q:'Como le agradecian las plantas?',opts:['Con frutas ricas','Con flores de colores','Con hojas grandes'],c:1}]},
+];
+
+const WORD_SETS=[
+  {tier:'free',frases:[
+    {b:'Tu ',bl:'perro',a:' ladra todas las noches.',opts:['perro','loro','gato'],c:'perro'},
+    {b:'Esa ',bl:'flor',a:' huele muy bien.',opts:['gallina','flor','piedra'],c:'flor'},
+    {b:'Hay que meter la ',bl:'ropa',a:' en la lavadora.',opts:['comida','ropa','pelota'],c:'ropa'},
+  ]},
+  {tier:'pack',frases:[
+    {b:'El ',bl:'abuelo',a:' va a cumplir ochenta anos.',opts:['bebe','abuelo','nino'],c:'abuelo'},
+    {b:'Coge el ',bl:'paraguas',a:' porque llueve.',opts:['paraguas','reloj','libro'],c:'paraguas'},
+    {b:'El bebe duerme en su ',bl:'cuna',a:'.',opts:['mochila','cuna','silla'],c:'cuna'},
+    {b:'Lucas soplo las ',bl:'velas',a:' de su tarta.',opts:['velas','tijeras','flores'],c:'velas'},
+  ]},
+  {tier:'pack',frases:[
+    {b:'El ',bl:'pajaro',a:' canta en el arbol.',opts:['pajaro','zapato','libro'],c:'pajaro'},
+    {b:'Manana viene la ',bl:'maestra',a:' nueva.',opts:['ventana','maestra','pelota'],c:'maestra'},
+    {b:'El ',bl:'cohete',a:' vuela hacia el espacio.',opts:['coche','cohete','colchon'],c:'cohete'},
+    {b:'Me gusta mucho el ',bl:'helado',a:' de vainilla.',opts:['tejado','helado','pescado'],c:'helado'},
+  ]},
+  {tier:'premium',frases:[
+    {b:'Las ',bl:'rosas',a:' son flores muy bonitas.',opts:['rosas','mesas','ruedas'],c:'rosas'},
+    {b:'El ',bl:'cometa',a:' brilla en el cielo de noche.',opts:['cometa','metro','lunes'],c:'cometa'},
+    {b:'Mi ',bl:'maestra',a:' me ensena a leer.',opts:['sofa','maestra','cocina'],c:'maestra'},
+    {b:'Voy a ',bl:'montar',a:' la bicicleta al parque.',opts:['comer','montar','dormir'],c:'montar'},
+  ]},
+];
+
+let lngState={view:'menu',readIdx:0,readQIdx:0,readScore:0,wordSetIdx:0,wordIdx:0,wordScore:0};
+let lngInit=false;
+function initLng(){if(lngInit)return;lngInit=true;renderLng();}
+function renderLng(){
+  const el=document.getElementById('lngContent'); if(!el) return;
+  el.innerHTML='';
+  // Stats
+  const statsDiv=document.createElement('div');
+  statsDiv.style.cssText='display:flex;gap:7px;margin-bottom:14px';
+  statsDiv.innerHTML='<div class="ss" style="flex:1"><div class="sv">'+G.pts+'</div><div class="sl">Puntos</div></div>'
+    +'<div class="ss" style="flex:1"><div class="sv">'+Object.keys(G.completed).filter(k=>k.startsWith('lng')).length+'</div><div class="sl">Hechos</div></div>';
+  el.appendChild(statsDiv);
+
+  var cats=[
+    {key:'vf',   label:'Verdadero o Falso', e:'✅', c:'linear-gradient(135deg,#4dabf7,#1971c2)', pack:'lenguaje'},
+    {key:'read', label:'Comprension Lectora',e:'📖', c:'linear-gradient(135deg,#52c41a,#237804)',  pack:'lenguaje'},
+    {key:'words',label:'Elige la Palabra',   e:'🔤', c:'linear-gradient(135deg,#fa8c16,#ad4e00)', pack:'lenguaje'},
+  ];
+  cats.forEach(function(cat){
+    var btn=document.createElement('button');
+    btn.style.cssText='width:100%;border:none;border-radius:15px;padding:14px;background:'+cat.c+';color:#fff;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;box-shadow:var(--shadow);margin-bottom:9px';
+    var allSets=cat.key==='vf'?VF_SETS:cat.key==='read'?READINGS:WORD_SETS;
+    var freeCnt=allSets.filter(function(s){return s.tier==='free';}).length;
+    var totalCnt=allSets.length;
+    btn.innerHTML='<span style="font-size:1.9rem">'+cat.e+'</span><div><div style="font-family:var(--fd);font-size:.93rem;font-weight:900">'+cat.label+'</div><div style="font-size:.72rem;opacity:.8">'+freeCnt+' gratis · '+totalCnt+' en total</div></div>';
+    btn.addEventListener('click',function(){startLngCat(cat.key,cat.pack);});
+    el.appendChild(btn);
+  });
+  // Lock card si no tiene pack
+  if(!hasPack('lenguaje')){
+    var lk=document.createElement('div');
+    lk.style.cssText='background:linear-gradient(145deg,var(--p),var(--pdk));border-radius:var(--r);padding:18px;text-align:center;box-shadow:var(--shadow-lg)';
+    lk.innerHTML='<div style="font-size:2rem;margin-bottom:6px">🔒</div>'
+      +'<div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:#fff;margin-bottom:4px">Pack Lenguaje – $1.990</div>'
+      +'<div style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:10px">Desbloquea 10+ ejercicios de lenguaje</div>';
+    var lb=document.createElement('button');
+    lb.style.cssText='background:#fff;border:none;border-radius:999px;padding:11px 22px;font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--p);cursor:pointer';
+    lb.textContent='💎 Comprar Pack – $1.990';
+    lb.addEventListener('click',function(){openPremium('lenguaje');});
+    lk.appendChild(lb); el.appendChild(lk);
+  }
+}
+
+function startLngCat(cat, packId){
+  var allSets=cat==='vf'?VF_SETS:cat==='read'?READINGS:WORD_SETS;
+  var sets=allSets.filter(function(s){
+    if(s.tier==='free') return true;
+    if(s.tier==='pack') return hasPack(packId);
+    if(s.tier==='premium') return isPremium();
+    return false;
+  });
+  var el=document.getElementById('lngContent'); if(!el) return;
+  el.innerHTML='';
+  var back=document.createElement('button');
+  back.className='btn btn-gray btn-sm';back.style.marginBottom='12px';back.textContent='← Categorias';
+  back.addEventListener('click',function(){lngInit=false;initLng();});
+  el.appendChild(back);
+  var exDiv=document.createElement('div');exDiv.id='lngExercise';el.appendChild(exDiv);
+  if(cat==='vf') renderVFList(sets,packId,exDiv,back);
+  else if(cat==='read') renderReadingList(sets,packId,exDiv,back);
+  else if(cat==='words') startAllWords(sets,packId,exDiv,back);
+}
+
+function renderVFList(sets,packId,container,backBtn){
+  container.innerHTML='<div style="font-family:var(--fd);font-size:.95rem;font-weight:900;color:var(--text);margin-bottom:10px">Elige un set</div>';
+  sets.forEach(function(s){
+    var done=G.completed['vf_'+s.t];
+    var btn=document.createElement('button');
+    btn.style.cssText='width:100%;border:2px solid '+(done?'var(--green)':'var(--border)')+';background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shadow)';
+    btn.innerHTML='<span style="font-size:1.4rem">'+(s.e||'✅')+'</span><div style="text-align:left"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--text)">'+s.t+(done?' ✅':'')+'</div><div style="font-size:.7rem;color:var(--muted);font-weight:700">'+s.facts.length+' frases</div></div>';
+    btn.addEventListener('click',function(){startVFSet(s,packId,container,function(){renderVFList(sets,packId,container,backBtn);});});
+    container.appendChild(btn);
+  });
+  // Si tiene sets libres pero no el pack
+  if(!hasPack(packId)){
+    var lkBtn=document.createElement('button');
+    lkBtn.className='btn btn-p btn-sm';lkBtn.style.marginTop='8px';
+    lkBtn.textContent='🔒 Desbloquear mas sets – $1.990';
+    lkBtn.addEventListener('click',function(){openPremium(packId);});
+    container.appendChild(lkBtn);
+  }
+}
+
+function startVFSet(s,packId,container,onBack){
+  var fi=0,score=0;
+  function render(){
+    container.innerHTML='';
+    if(fi>=s.facts.length){
+      addPts(score*10);G.completed['vf_'+s.t]=true;save();
+      var card=document.createElement('div');card.className='result-card';
+      card.innerHTML='<span class="result-emoji">🏆</span><div class="result-title">'+score+'/'+s.facts.length+' correctas</div><div class="result-sub">+'+score*10+' pts ganados</div>';
+      var nb=document.createElement('button');nb.className='btn btn-p';nb.style.marginTop='12px';nb.textContent='← Volver';nb.addEventListener('click',onBack);card.appendChild(nb);
+      container.appendChild(card);return;
+    }
+    var fact=s.facts[fi];
+    var isCorrect=fact.c;
+    var card=document.createElement('div');card.className='ex-card';
+    card.innerHTML='<div class="ex-title">'+s.t+'</div>'
+      +'<div class="ex-progress">Frase '+(fi+1)+'/'+s.facts.length+' · Score: '+score+'</div>'
+      +'<div class="question-box"><div class="question-text">&ldquo;'+fact.f+'&rdquo;</div></div>';
+    var row=document.createElement('div');row.style.cssText='display:flex;gap:8px;margin-bottom:10px';
+    var bV=document.createElement('button');bV.className='btn btn-g btn-sm';bV.style.flex='1';bV.textContent='✅ Verdadero';
+    var bF=document.createElement('button');bF.className='btn btn-sm';bF.style.cssText='flex:1;background:linear-gradient(135deg,var(--red),#cf1322);color:#fff;border:none;border-radius:999px;padding:9px 14px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:var(--fb);margin-top:0';bF.textContent='❌ Falso';
+    function handle(userAns){
+      bV.disabled=true;bF.disabled=true;
+      var ok=(userAns===isCorrect);
+      if(ok){score++;(userAns?bV:bF).style.cssText+='background:#52c41a';toast('✅ Correcto!');}
+      else{(userAns?bV:bF).style.opacity='0.5';(isCorrect?bV:bF).style.cssText+='background:#52c41a';toast('❌ Era '+(isCorrect?'Verdadero':'Falso'));}
+      fi++;setTimeout(render,900);
+    }
+    bV.addEventListener('click',function(){handle(true);});
+    bF.addEventListener('click',function(){handle(false);});
+    row.appendChild(bV);row.appendChild(bF);card.appendChild(row);
+    var vb=document.createElement('button');vb.className='btn btn-gray btn-sm';vb.textContent='← Volver';vb.addEventListener('click',onBack);card.appendChild(vb);
+    container.appendChild(card);
+  }
+  render();
+}
+
+function renderReadingList(sets,packId,container,backBtn){
+  container.innerHTML='<div style="font-family:var(--fd);font-size:.95rem;font-weight:900;color:var(--text);margin-bottom:10px">Elige una lectura</div>';
+  sets.forEach(function(s){
+    var done=G.completed['read_'+s.t];
+    var btn=document.createElement('button');
+    btn.style.cssText='width:100%;border:2px solid '+(done?'var(--green)':'var(--border)')+';background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shadow)';
+    btn.innerHTML='<span style="font-size:1.4rem">'+(s.e||'📖')+'</span><div style="text-align:left"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--text)">'+s.t+(done?' ✅':'')+'</div><div style="font-size:.7rem;color:var(--muted);font-weight:700">'+s.qs.length+' preguntas</div></div>';
+    btn.addEventListener('click',function(){
+      var exWithCtx=s.qs.map(function(q){return Object.assign({},q,{context:s.text});});
+      container.innerHTML='';
+      var bb=document.createElement('button');bb.className='btn btn-gray btn-sm';bb.style.marginBottom='12px';bb.textContent='← Lecturas';bb.addEventListener('click',function(){renderReadingList(sets,packId,container,backBtn);});container.appendChild(bb);
+      var exD=document.createElement('div');container.appendChild(exD);
+      buildExerciseUI(exD,exWithCtx,function(score,total){
+        G.completed['read_'+s.t]=true;save();
+        buildFinishCard(exD,score,total,packId,function(){bb.click();},function(){renderReadingList(sets,packId,container,backBtn);});
+      });
+    });
+    container.appendChild(btn);
+  });
+  if(!hasPack(packId)){
+    var lkBtn=document.createElement('button');lkBtn.className='btn btn-p btn-sm';lkBtn.style.marginTop='8px';lkBtn.textContent='🔒 Mas lecturas – $1.990';lkBtn.addEventListener('click',function(){openPremium(packId);});container.appendChild(lkBtn);
+  }
+}
+
+function startAllWords(sets,packId,container,backBtn){
+  var allEx=[];
+  sets.forEach(function(s){s.frases.forEach(function(f){allEx.push({question:f.b+'___'+f.a,options:f.opts,correct:f.opts.indexOf(f.c),_blank:f.bl,_sentence:f});});});
+  container.innerHTML='<div style="font-family:var(--fd);font-size:.95rem;font-weight:900;color:var(--text);margin-bottom:10px">Completa las frases</div><div id="wordsEx"></div>';
+  if(!hasPack(packId)){
+    var info=document.createElement('div');
+    info.style.cssText='background:#EBF5FF;border-radius:12px;padding:10px;margin-bottom:10px;border:1.5px solid #BAD7FF;font-size:.8rem;font-weight:700;color:var(--p)';
+    info.innerHTML='Mostrando 3 gratis · <button style="border:none;background:transparent;font-weight:900;color:var(--p);cursor:pointer;text-decoration:underline" onclick="openPremium('lenguaje')">Desbloquear mas – $1.990</button>';
+    container.insertBefore(info,container.querySelector('#wordsEx'));
+  }
+  function makeWordCard(ex){
+    var card=document.createElement('div');card.className='ex-card';
+    card.innerHTML='<div class="ex-title">🔤 Elige la palabra correcta</div>'
+      +'<div style="background:var(--bg2);border-radius:12px;padding:13px;margin-bottom:12px;font-size:.95rem;font-weight:700;border:1.5px solid var(--border)">'
+      +ex._sentence.b+'<span style="border-bottom:3px solid var(--p);padding:0 6px;color:var(--p)">___</span>'+ex._sentence.a+'</div>';
+    var row=document.createElement('div');row.style.cssText='display:flex;gap:7px;margin-bottom:10px';
+    ex.options.forEach(function(opt){
+      var btn=document.createElement('button');
+      btn.style.cssText='flex:1;border:2px solid var(--border);background:var(--card);border-radius:999px;padding:11px;font-size:.87rem;font-weight:800;cursor:pointer;font-family:var(--fb);color:var(--text)';
+      btn.textContent=opt;
+      btn.addEventListener('click',function(){
+        row.querySelectorAll('button').forEach(function(b){
+          b.disabled=true;
+          if(b.textContent===ex._sentence.c){b.style.background='#F0FFF4';b.style.borderColor='var(--green)';}
+        });
+        if(opt===ex._sentence.c){addPts(10);toast('✅ Correcto! Era: '+opt);}
+        else{this.style.background='#FFF1F0';this.style.borderColor='var(--red)';toast('❌ Era: '+ex._sentence.c);}
+      });
+      row.appendChild(btn);
+    });
+    card.appendChild(row);
+    return card;
+  }
+  var wordsEx=document.getElementById('wordsEx');
+  allEx.forEach(function(ex){wordsEx.appendChild(makeWordCard(ex));});
+}
+
+function startLngVF(idx){
+  const set=VF_SETS[idx%VF_SETS.length]; let fi=0, score=0;
+  function render(){
+    const el=document.getElementById('lngExercise'); if(!el) return;
+    if(fi>=set.facts.length){
+      addPts(score*10); G.completed['lng_vf_'+idx]=true; save();
+      el.innerHTML='';
+      const card=document.createElement('div'); card.className='card'; card.style.textAlign='center';
+      card.innerHTML='<div style="font-size:2.5rem">🏆</div><div style="font-family:var(--fd);font-size:1rem;font-weight:900">'+score+'/'+set.facts.length+' correctas · +'+score*10+' pts</div>';
+      const nb=document.createElement('button'); nb.className='btn btn-p btn-sm'; nb.style.marginTop='8px'; nb.textContent='Siguiente →'; nb.addEventListener('click',()=>startLngVF((idx+1)%VF_SETS.length)); card.appendChild(nb);
+      const vb=document.createElement('button'); vb.className='btn btn-gray btn-sm'; vb.style.marginTop='6px'; vb.textContent='← Volver'; vb.addEventListener('click',renderLng); card.appendChild(vb);
+      el.appendChild(card); return;
+    }
+    const fact=set.facts[fi];
+    const correctAnswer=fact.c; // booleano true/false
+    el.innerHTML='';
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML='<div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--p);margin-bottom:5px">'+set.t+'</div>'
+      +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:10px">Frase '+(fi+1)+'/'+set.facts.length+' · Score: '+score+'</div>'
+      +'<div style="background:var(--bg2);border-radius:12px;padding:13px;margin-bottom:12px;font-size:.93rem;font-weight:700;border:1.5px solid var(--border)">&ldquo;'+fact.f+'&rdquo;</div>';
+    const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;margin-bottom:10px';
+    const btnV=document.createElement('button'); btnV.className='btn btn-g btn-sm'; btnV.style.flex='1'; btnV.textContent='✅ Verdadero';
+    const btnF=document.createElement('button'); btnF.className='btn btn-sm'; btnF.style.cssText='flex:1;background:linear-gradient(135deg,var(--red),#cf1322);color:#fff;border:none;border-radius:999px;padding:9px 14px;font-size:.8rem;font-weight:800;cursor:pointer;margin-top:0'; btnF.textContent='❌ Falso';
+    function handle(userAns){
+      btnV.disabled=true; btnF.disabled=true;
+      const isOk=(userAns===correctAnswer);
+      if(isOk){ score++; (userAns?btnV:btnF).style.background='#52c41a'; MA_t('✅ ¡Correcto!'); }
+      else{ (userAns?btnV:btnF).style.opacity='0.5'; (correctAnswer?btnV:btnF).style.background='#52c41a'; MA_t('❌ Era '+(correctAnswer?'Verdadero':'Falso')); }
+      fi++; setTimeout(render,900);
+    }
+    btnV.addEventListener('click',()=>handle(true));
+    btnF.addEventListener('click',()=>handle(false));
+    row.appendChild(btnV); row.appendChild(btnF); card.appendChild(row);
+    const vb=document.createElement('button'); vb.className='btn btn-gray btn-sm'; vb.textContent='← Volver'; vb.addEventListener('click',renderLng); card.appendChild(vb);
+    el.appendChild(card);
+  }
+  render(); document.getElementById('lngExercise')?.scrollIntoView({behavior:'smooth'});
+}
+
+function startLngReading(idx){
+  const r=READINGS[idx%READINGS.length];let qi=0,score=0;
+  function render(){
+    const el=document.getElementById('lngExercise');if(!el)return;
+    if(qi>=r.qs.length){
+      addPts(score*15);G.completed['lng_r_'+idx]=true;save();
+      el.innerHTML=`<div class="card" style="text-align:center"><div style="font-size:2.5rem">🌟</div><div style="font-family:var(--fd);font-size:1rem;font-weight:900">${score}/${r.qs.length} correctas · +${score*15} pts</div><button class="btn btn-o btn-sm" style="margin-top:8px" onclick="startLngReading(${(idx+1)%READINGS.length})">Siguiente lectura →</button><button class="btn btn-gray btn-sm" style="margin-top:6px" onclick="renderLng()">← Volver</button></div>`;return;
+    }
+    const q=r.qs[qi];
+    el.innerHTML=`<div class="card">
+      <div style="background:#FFFBF0;border-radius:12px;padding:12px;margin-bottom:10px;border:1.5px solid #FCD34D">
+        <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--p);margin-bottom:5px">${r.e} ${r.t}</div>
+        <div style="font-size:.9rem;line-height:1.75;color:var(--text)">${r.text}</div>
+      </div>
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:6px">Pregunta ${qi+1}/${r.qs.length}</div>
+      <div style="background:var(--bg2);border-radius:10px;padding:10px;font-size:.87rem;font-weight:800;color:var(--text);margin-bottom:8px">${q.q}</div>
+      ${q.opts.map((o,i)=>`<button class="opt-btn" onclick="(function(){var ok=${i===q.c};if(ok){score++;MA_t('✅ ¡Correcto!');}else MA_t('❌ Era: ${q.opts[q.c].replace(/'/g,"\\'")}');qi++;render();})()"> ${o}</button>`).join('')}
+      <button class="btn btn-gray btn-sm" style="margin-top:4px" onclick="renderLng()">← Volver</button>
+    </div>`;
+  }
+  render();document.getElementById('lngExercise')?.scrollIntoView({behavior:'smooth'});
+}
+function startLngWords(setIdx){
+  const set=WORD_SETS[setIdx%WORD_SETS.length];
+  let wi=0, score=0;
+  function render(){
+    const el=document.getElementById('lngExercise'); if(!el) return;
+    if(wi>=set.length){
+      addPts(score*10); G.completed['lng_w_'+setIdx]=true; save();
+      el.innerHTML='';
+      const card=document.createElement('div'); card.className='card'; card.style.textAlign='center';
+      card.innerHTML='<div style="font-size:2.5rem">🎯</div><div style="font-family:var(--fd);font-size:1rem;font-weight:900">+'+score*10+' pts ganados!</div>';
+      const nb=document.createElement('button'); nb.className='btn btn-p btn-sm'; nb.style.marginTop='8px'; nb.textContent='Siguiente →'; nb.addEventListener('click',()=>startLngWords((setIdx+1)%WORD_SETS.length)); card.appendChild(nb);
+      const vb=document.createElement('button'); vb.className='btn btn-gray btn-sm'; vb.style.marginTop='6px'; vb.textContent='← Volver'; vb.addEventListener('click',renderLng); card.appendChild(vb);
+      el.appendChild(card); return;
+    }
+    const f=set[wi];
+    el.innerHTML='';
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML='<div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--p);margin-bottom:10px">🔤 Elige la palabra correcta</div>'
+      +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:10px">Frase '+(wi+1)+'/'+set.length+'</div>'
+      +'<div style="background:var(--bg2);border-radius:12px;padding:14px;margin-bottom:12px;font-size:.95rem;font-weight:700;border:1.5px solid var(--border)">'
+      +f.b+'<span style="border-bottom:3px solid var(--p);padding:0 6px;color:var(--p)">___</span>'+f.a+'</div>';
+    const optsRow=document.createElement('div'); optsRow.style.cssText='display:flex;gap:8px;margin-bottom:10px';
+    f.opts.forEach(function(opt){
+      const btn=document.createElement('button');
+      btn.style.cssText='flex:1;border:2px solid var(--border);background:var(--card);border-radius:999px;padding:12px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:var(--fb);color:var(--text)';
+      btn.textContent=opt;
+      btn.addEventListener('click',function(){
+        optsRow.querySelectorAll('button').forEach(function(b){
+          b.disabled=true;
+          if(b.textContent===f.c){ b.style.background='#F0FFF4'; b.style.borderColor='var(--green)'; }
+        });
+        const isOk=(opt===f.c);
+        if(isOk){ score++; MA_t('✅ ¡Correcto! Era: '+f.c); }
+        else{ this.style.background='#FFF1F0'; this.style.borderColor='var(--red)'; MA_t('❌ La correcta era: '+f.c); }
+        wi++; setTimeout(render, 800);
+      });
+      optsRow.appendChild(btn);
+    });
+    card.appendChild(optsRow);
+    const vb=document.createElement('button'); vb.className='btn btn-gray btn-sm'; vb.textContent='← Volver'; vb.addEventListener('click',renderLng);
+    card.appendChild(vb);
+    el.appendChild(card);
+  }
+  render(); document.getElementById('lngExercise')?.scrollIntoView({behavior:'smooth'});
+}
+
+function startEncierra(){
+  encIdx=0; encScore=0; renderEncierra();
+}
+function renderEncierra(){
+  const el=document.getElementById('lecEx'); if(!el) return;
+  if(encIdx>=ENCIERRA.length){
+    addPts(encScore*10); MA_t('🎯 +'+(encScore*10)+' pts!'); renderLec(); return;
+  }
+  const d=ENCIERRA[encIdx];
+  el.innerHTML='';
+  const card=document.createElement('div'); card.className='card'; card.style.textAlign='center';
+  card.innerHTML='<div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--orange);margin-bottom:8px">🎯 Encierra la frase correcta</div>'
+    +'<div style="font-size:.72rem;color:var(--muted);margin-bottom:10px">'+(encIdx+1)+'/'+ENCIERRA.length+' · Score: '+encScore+'</div>'
+    +'<div style="font-size:5rem;margin-bottom:14px">'+d.e+'</div>';
+  const optsDiv=document.createElement('div'); optsDiv.style.cssText='display:grid;gap:9px;margin-bottom:10px';
+  d.opts.forEach(function(opt,i){
+    const btn=document.createElement('button');
+    btn.className='opt-btn';
+    btn.textContent=opt;
+    btn.addEventListener('click',function(){
+      optsDiv.querySelectorAll('.opt-btn').forEach(function(b,j){
+        b.disabled=true;
+        if(j===d.c){ b.classList.add('correct'); }
+      });
+      if(i===d.c){ encScore++; MA_t('✅ ¡Correcto!'); }
+      else{ this.classList.add('wrong'); MA_t('❌ Era: '+d.opts[d.c]); }
+      encIdx++; setTimeout(renderEncierra, 900);
+    });
+    optsDiv.appendChild(btn);
+  });
+  card.appendChild(optsDiv);
+  const vb=document.createElement('button'); vb.className='btn btn-gray btn-sm'; vb.textContent='← Volver'; vb.addEventListener('click',renderLec);
+  card.appendChild(vb);
+  el.appendChild(card);
+  el.scrollIntoView({behavior:'smooth'});
+}
+
+/* ═══════════════════════════════════════════════
+   MÓDULO MATEMÁTICA
+═══════════════════════════════════════════════ */
+const NUMS_WORDS=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte'];
+const EMO_SETS=[{e:'🍎'},{e:'⭐'},{e:'🐱'},{e:'🌸'},{e:'🦋'},{e:'🚗'},{e:'🎈'},{e:'🍭'},{e:'🐟'},{e:'🌻'}];
+const PATTERNS=[
+  {seq:[1,2,3,4],ans:5,step:1,op:'+'},{seq:[2,4,6,8],ans:10,step:2,op:'+'},
+  {seq:[10,9,8,7],ans:6,step:1,op:'-'},{seq:[5,10,15,20],ans:25,step:5,op:'+'},
+  {seq:[20,18,16,14],ans:12,step:2,op:'-'},{seq:[0,3,6,9],ans:12,step:3,op:'+'},
+  {seq:[1,3,5,7],ans:9,step:2,op:'+'},{seq:[15,12,9,6],ans:3,step:3,op:'-'},
+  {seq:[4,8,12,16],ans:20,step:4,op:'+'},{seq:[100,90,80,70],ans:60,step:10,op:'-'},
+];
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
+function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
+let matInit=false;
+function initMat(){if(matInit)return;matInit=true;renderMat();}
+function renderMat(){
+  const el=document.getElementById('matContent');if(!el)return;
+  el.innerHTML=`<div style="display:grid;gap:9px;margin-bottom:14px">
+    ${[
+      {e:'🔢',nm:'Reconoce Números',ds:'Del 0 al 20',c:'linear-gradient(135deg,#4158D0,#C850C0)',fn:'startNums()'},
+      {e:'🍎',nm:'Cuenta Objetos',ds:'Contar y elegir',c:'linear-gradient(135deg,#52c41a,#237804)',fn:'startConteo()'},
+      {e:'➕',nm:'Sumas y Restas',ds:'Con apoyo visual',c:'linear-gradient(135deg,#fa8c16,#ad4e00)',fn:'startOps()'},
+      {e:'⚖️',nm:'Comparar Números',ds:'Mayor, menor, igual',c:'linear-gradient(135deg,#722ed1,#391085)',fn:'startCompar()'},
+      {e:'🥇',nm:'Ordinales',ds:'1° 2° 3° posiciones',c:'linear-gradient(135deg,#00C9A7,#009E84)',fn:'startOrdinales()'},
+      {e:'🔁',nm:'Patrones Numéricos',ds:'¿Qué número sigue?',c:'linear-gradient(135deg,#f06595,#c2255c)',fn:'startPatrones()'},
+    ].map(c=>`<button onclick="${c.fn}" style="border:none;border-radius:14px;padding:13px;background:${c.c};color:#fff;display:flex;align-items:center;gap:11px;text-align:left;cursor:pointer;box-shadow:var(--shadow)">
+      <span style="font-size:1.8rem">${c.e}</span>
+      <div><div style="font-family:var(--fd);font-size:.9rem;font-weight:900">${c.nm}</div><div style="font-size:.7rem;opacity:.8">${c.ds}</div></div>
+    </button>`).join('')}
+  </div>
+  <div id="matEx"></div>`;
+}
+function matScrollToEx(){document.getElementById('matEx')?.scrollIntoView({behavior:'smooth'});}
+function startNums(){
+  let idx=0,cor=0,tot=8;
+  function r(){
+    if(idx>=tot){addPts(cor*15);toast('🔢 +'+(cor*15)+' pts!');renderMat();return;}
+    const n=rnd(0,20);const eset=EMO_SETS[idx%EMO_SETS.length];
+    const wrong=new Set([n]);while(wrong.size<4)wrong.add(rnd(0,20));
+    const opts=shuffle([...wrong]);idx++;
+    const el=document.getElementById('matEx');if(!el)return;
+    el.innerHTML=`<div class="card"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--p);margin-bottom:8px">🔢 ¿Cuántos hay? (${idx}/${tot})</div>
+      <div style="background:var(--bg2);border-radius:13px;padding:14px;text-align:center;margin-bottom:12px;border:1.5px solid var(--border);font-size:1.6rem;letter-spacing:3px;line-height:2;word-break:break-all">${n>0?eset.e.repeat(n):'∅'}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${opts.map(o=>`<button onclick="(function(){var ok=${o===n};if(ok){cor++;MA_t('✅ Son ${NUMS_WORDS[n]||n}');}else MA_t('❌ Eran ${n}');r();})()" style="border:2.5px solid var(--border);background:var(--card);border-radius:13px;padding:13px;font-family:var(--fd);font-size:1.4rem;font-weight:900;cursor:pointer">${o}<div style="font-size:.65rem;opacity:.55;font-weight:600">${NUMS_WORDS[o]||''}</div></button>`).join('')}
+      </div><button class="btn btn-gray btn-sm" style="margin-top:8px" onclick="renderMat()">← Volver</button></div>`;
+  }
+  r();matScrollToEx();
+}
+function startConteo(){
+  let idx=0,cor=0,tot=8;
+  function r(){
+    if(idx>=tot){addPts(cor*20);toast('🍎 +'+(cor*20)+' pts!');renderMat();return;}
+    const n=rnd(1,20);const eset=EMO_SETS[(idx+3)%EMO_SETS.length];
+    const wrong=new Set([n]);while(wrong.size<4)wrong.add(Math.max(1,n+rnd(-3,3)));
+    const opts=shuffle([...wrong]);idx++;
+    const el=document.getElementById('matEx');if(!el)return;
+    el.innerHTML=`<div class="card"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--green);margin-bottom:8px">🍎 Cuenta y elige (${idx}/${tot})</div>
+      <div style="background:var(--bg2);border-radius:13px;padding:12px;text-align:center;margin-bottom:10px;border:1.5px solid var(--border)">
+        <div style="font-size:.8rem;font-weight:800;color:var(--muted);margin-bottom:6px">Cuenta los objetos 👇</div>
+        <div style="font-size:1.5rem;letter-spacing:3px;line-height:2;word-break:break-all">${eset.e.repeat(n)}</div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        ${opts.map(o=>`<button onclick="(function(){var ok=${o===n};if(ok){cor++;MA_t('✅ Son ${n}');}else MA_t('❌ Eran ${n}');r();})()" style="width:55px;height:55px;border-radius:50%;border:2.5px solid var(--border);background:var(--card);font-family:var(--fd);font-size:1.3rem;font-weight:900;cursor:pointer">${o}</button>`).join('')}
+      </div><button class="btn btn-gray btn-sm" style="margin-top:8px" onclick="renderMat()">← Volver</button></div>`;
+  }
+  r();matScrollToEx();
+}
+function startOps(){
+  let idx=0,cor=0,tot=10;
+  function r(){
+    if(idx>=tot){addPts(cor*20);toast('➕ +'+(cor*20)+' pts!');renderMat();return;}
+    const isSum=Math.random()>.4;const a=rnd(1,10),b=isSum?rnd(1,10-a):rnd(1,a);const res=isSum?a+b:a-b;
+    const eset=EMO_SETS[(idx+5)%EMO_SETS.length];
+    const wrong=new Set([res]);while(wrong.size<4)wrong.add(Math.max(0,res+rnd(-3,3)));
+    const opts=shuffle([...wrong]);idx++;
+    const el=document.getElementById('matEx');if(!el)return;
+    el.innerHTML=`<div class="card"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--orange);margin-bottom:8px">${isSum?'➕ Suma':'➖ Resta'} (${idx}/${tot})</div>
+      <div style="background:#FFFBF0;border-radius:13px;padding:14px;text-align:center;margin-bottom:12px;border:2px solid #FCD34D">
+        ${isSum?`<div style="font-size:1.4rem;letter-spacing:2px;margin-bottom:6px">${eset.e.repeat(a)} + ${eset.e.repeat(b)}</div>`:`<div style="font-size:1.4rem;letter-spacing:2px;margin-bottom:4px">${eset.e.repeat(a)}</div><div style="font-size:.8rem;font-weight:800;color:var(--red);margin-bottom:4px">Se van ${b}: ${'✕'.repeat(b)}</div>`}
+        <div style="font-family:var(--fd);font-size:2rem;font-weight:900;color:var(--text)">${a} ${isSum?'+':'-'} ${b} = ?</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${opts.map(o=>`<button onclick="(function(){var ok=${o===res};if(ok){cor++;MA_t('✅ ¡Correcto!');}else MA_t('❌ Era ${res}');r();})()" style="border:2.5px solid var(--border);background:var(--card);border-radius:13px;padding:13px;font-family:var(--fd);font-size:1.5rem;font-weight:900;cursor:pointer">${o}</button>`).join('')}
+      </div><button class="btn btn-gray btn-sm" style="margin-top:8px" onclick="renderMat()">← Volver</button></div>`;
+  }
+  r();matScrollToEx();
+}
+function startCompar(){
+  let idx=0,cor=0,tot=8;
+  function r(){
+    if(idx>=tot){addPts(cor*15);toast('⚖️ +'+(cor*15)+' pts!');renderMat();return;}
+    const a=rnd(0,20),b=rnd(0,20);const cs=a>b?'>':a<b?'<':'=';idx++;
+    const el=document.getElementById('matEx');if(!el)return;
+    el.innerHTML=`<div class="card" style="text-align:center"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--purple);margin-bottom:10px">⚖️ ¿Qué signo va? (${idx}/${tot})</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px">
+        <div style="background:var(--bg2);border-radius:13px;width:68px;height:68px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:2.5rem;font-weight:900;border:2px solid var(--border)">${a}</div>
+        <div style="font-size:2rem;color:var(--muted);font-weight:900">?</div>
+        <div style="background:var(--bg2);border-radius:13px;width:68px;height:68px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:2.5rem;font-weight:900;border:2px solid var(--border)">${b}</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        ${['>','<','='].map(s=>`<button onclick="(function(){var ok='${s}'==='${cs}';if(ok){cor++;MA_t('✅ ${a} ${cs} ${b}');}else MA_t('❌ Era ${a} ${cs} ${b}');r();})()" style="width:60px;height:60px;border-radius:50%;border:2.5px solid var(--border);background:var(--card);font-family:var(--fd);font-size:1.8rem;font-weight:900;cursor:pointer">${s}</button>`).join('')}
+      </div><button class="btn btn-gray btn-sm" style="margin-top:10px" onclick="renderMat()">← Volver</button></div>`;
+  }
+  r();matScrollToEx();
+}
+const ORD_W=['1° primero','2° segundo','3° tercero','4° cuarto','5° quinto','6° sexto'];
+const ORD_E=['🐻','🦊','🐰','🦁','🐸','🐧','🦋','🐳'];
+function startOrdinales(){
+  let idx=0,cor=0,tot=6;
+  function r(){
+    if(idx>=tot){addPts(cor*20);toast('🥇 +'+(cor*20)+' pts!');renderMat();return;}
+    const len=rnd(3,6);const tPos=rnd(0,len-1);const emojis=shuffle(ORD_E).slice(0,len);idx++;
+    const el=document.getElementById('matEx');if(!el)return;
+    el.innerHTML=`<div class="card"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--teal);margin-bottom:8px">🥇 Ordinales (${idx}/${tot})</div>
+      <div style="background:var(--bg2);border-radius:12px;padding:12px;margin-bottom:10px;border:1.5px solid var(--border)">
+        <div style="font-size:.83rem;font-weight:800;color:var(--text);margin-bottom:8px;text-align:center">¿Cuál está en el lugar <strong style="color:var(--odk)">${ORD_W[tPos]}</strong>?</div>
+        <div style="display:flex;gap:5px;justify-content:center;flex-wrap:wrap">
+          ${emojis.map((e,i)=>`<div style="text-align:center"><div style="font-size:.6rem;font-weight:900;color:var(--muted);margin-bottom:2px">${ORD_W[i]?.split(' ')[0]||''}</div><div style="font-size:1.9rem">${e}</div></div>`).join('')}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${shuffle(emojis).map(e=>`<button onclick="(function(){var ok='${e}' === '${emojis[tPos]}';if(ok){cor++;MA_t('✅ ¡Correcto!');}else MA_t('❌ Era ${emojis[tPos]}');r();})()" style="border:2px solid var(--border);background:var(--card);border-radius:12px;padding:14px;font-size:2rem;cursor:pointer;text-align:center">${e}</button>`).join('')}
+      </div><button class="btn btn-gray btn-sm" style="margin-top:8px" onclick="renderMat()">← Volver</button></div>`;
+  }
+  r();matScrollToEx();
+}
+function startPatrones(){
+  let idx=0,cor=0;
+  function r(){
+    if(idx>=PATTERNS.length){addPts(cor*25);toast('🔁 +'+(cor*25)+' pts!');renderMat();return;}
+    const p=PATTERNS[idx];const wrong=new Set([p.ans]);while(wrong.size<4)wrong.add(Math.max(0,p.ans+rnd(-6,6)));
+    const opts=shuffle([...wrong]);idx++;
+    const el=document.getElementById('matEx');if(!el)return;
+    el.innerHTML=`<div class="card"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--pink);margin-bottom:8px">🔁 ¿Qué número sigue? (${idx}/${PATTERNS.length})</div>
+      <div style="font-size:.78rem;font-weight:800;color:var(--muted);margin-bottom:8px">Patrón: ${p.op==='+'?'➕ sumar '+p.step:'➖ restar '+p.step}</div>
+      <div style="display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap;background:var(--bg2);border-radius:12px;padding:12px;margin-bottom:12px;border:1.5px solid var(--border)">
+        ${p.seq.map(n=>`<div style="background:var(--card);border-radius:10px;min-width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.3rem;font-weight:900;border:2px solid var(--border)">${n}</div>`).join('<span style="font-size:1rem;color:var(--muted)">→</span>')}
+        <span style="font-size:1rem;color:var(--muted)">→</span>
+        <div style="border:3px dashed var(--p);border-radius:10px;min-width:40px;height:40px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.4rem;font-weight:900;color:var(--muted)">?</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        ${opts.map(o=>`<button onclick="(function(){var ok=${o===p.ans};if(ok){cor++;MA_t('✅ Sigue el ${p.ans}');}else MA_t('❌ Era ${p.ans}');r();})()" style="border:2.5px solid var(--border);background:var(--card);border-radius:12px;padding:13px;font-family:var(--fd);font-size:1.4rem;font-weight:900;cursor:pointer">${o}</button>`).join('')}
+      </div><button class="btn btn-gray btn-sm" style="margin-top:8px" onclick="renderMat()">← Volver</button></div>`;
+  }
+  r();matScrollToEx();
+}
+
+/* ═══════════════════════════════════════════════
+   MÓDULO LABERINTOS
+═══════════════════════════════════════════════ */
+const MAZES=[
+  {id:1,tier:'free',nm:'El Inicio',e:'🌱',d:'Fácil',pts:20,rows:7,cols:7,seed:101,free:true},
+  {id:2,tier:'free',nm:'El Sendero',e:'🌿',d:'Fácil',pts:20,rows:8,cols:8,seed:202,free:true},
+  {id:3,tier:'free',nm:'La Cueva',e:'🦇',d:'Fácil',pts:25,rows:9,cols:9,seed:303,free:false},
+  {id:4,tier:'pack',nm:'El Bosque',e:'🌲',d:'Medio',pts:35,rows:10,cols:10,seed:404,free:false},
+  {id:5,tier:'pack',nm:'El Río',e:'🌊',d:'Medio',pts:35,rows:11,cols:11,seed:505,free:false},
+  {id:6,tier:'pack',nm:'La Montaña',e:'⛰️',d:'Medio',pts:40,rows:12,cols:12,seed:606,free:false},
+  {id:7,tier:'pack',nm:'El Volcán',e:'🌋',d:'Difícil',pts:45,rows:13,cols:13,seed:707,free:false},
+  {id:8,tier:'pack',nm:'El Castillo',e:'🏰',d:'Difícil',pts:50,rows:14,cols:14,seed:808,free:false},
+  {id:9,tier:'pack',nm:'El Pantano',e:'🐊',d:'Difícil',pts:55,rows:15,cols:15,seed:909,free:false},
+  {id:10,tier:'pack',nm:'La Tormenta',e:'⚡',d:'Difícil',pts:60,rows:16,cols:16,seed:1010,free:false},
+  {id:11,tier:'pack',nm:'El Espacio',e:'🚀',d:'Fácil',pts:25,rows:9,cols:9,seed:1111,free:false},
+  {id:12,tier:'premium',nm:'El Océano',e:'🐠',d:'Medio',pts:35,rows:11,cols:11,seed:1212,free:false},
+  {id:13,tier:'premium',nm:'La Selva',e:'🦁',d:'Medio',pts:40,rows:12,cols:12,seed:1313,free:false},
+  {id:14,tier:'premium',nm:'El Desierto',e:'🏜️',d:'Difícil',pts:50,rows:13,cols:13,seed:1414,free:false},
+  {id:15,tier:'premium',nm:'El Jardín',e:'🌸',d:'Fácil',pts:25,rows:9,cols:9,seed:1515,free:false},
+  {id:16,tier:'premium',nm:'El Ártico',e:'🐧',d:'Medio',pts:40,rows:12,cols:12,seed:1616,free:false},
+  {id:17,tier:'premium',nm:'La Ciudad',e:'🏙️',d:'Difícil',pts:55,rows:14,cols:14,seed:1717,free:false},
+  {id:18,tier:'premium',nm:'El Jardín Secreto',e:'🌹',d:'Medio',pts:35,rows:10,cols:10,seed:1818,free:false},
+  {id:19,tier:'premium',nm:'La Galaxia',e:'🌌',d:'Difícil',pts:65,rows:17,cols:17,seed:1919,free:false},
+  {id:20,tier:'premium',nm:'El Gran Reto',e:'👑',d:'Difícil',pts:80,rows:20,cols:20,seed:2020,free:false},
+];
+function seededMaze(rows,cols,seed){
+  let s=seed;
+  function rng(){s=(s*1664525+1013904223)&0xffffffff;return(s>>>0)/0xffffffff;}
+  const grid=[];
+  for(let r=0;r<rows;r++){grid.push([]);for(let c=0;c<cols;c++)grid[r].push({N:true,S:true,E:true,W:true,v:false});}
+  function shr(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+  function carve(r,c){
+    grid[r][c].v=true;
+    for(const d of shr(['N','S','E','W'])){
+      const nr=r+(d==='S'?1:d==='N'?-1:0),nc=c+(d==='E'?1:d==='W'?-1:0);
+      if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&!grid[nr][nc].v){
+        grid[r][c][d]=false;grid[nr][nc][{N:'S',S:'N',E:'W',W:'E'}[d]]=false;carve(nr,nc);
+      }
+    }
+  }
+  carve(0,0);grid[0][0].W=false;grid[rows-1][cols-1].E=false;
+  return grid;
+}
+let labInit=false,labSt={maze:null,pr:0,pc:0,moves:0,secs:0,timer:null,active:false,curMaze:null};
+let labTX=0,labTY=0;
+function initLab(){if(labInit)return;labInit=true;renderLabList();}
+function renderLabList(){
+  const el=document.getElementById('labContent'); if(!el) return;
+  el.innerHTML='';
+  // Info box
+  const info=document.createElement('div');
+  info.style.cssText='background:#EBF5FF;border-radius:13px;padding:11px 13px;margin-bottom:14px;border:1.5px solid #BAD7FF';
+  info.innerHTML='<div style="font-size:.82rem;font-weight:800;color:var(--p);margin-bottom:3px">🧠 Laberintos para TDAH</div><div style="font-size:.77rem;color:var(--text2);line-height:1.55">Activan la corteza prefrontal mejorando <strong>atencion, planificacion y control de impulsos</strong>.</div>';
+  el.appendChild(info);
+
+  const grid=document.createElement('div');
+  grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:9px';
+
+  MAZES.forEach(function(m){
+    const canPlay=m.tier==='free'||(m.tier==='pack'&&hasPack('laberintos'))||(m.tier==='premium'&&isPremium());
+    const locked=!canPlay;
+    const done=G.completed['lab_'+m.id];
+    const tile=document.createElement('div');
+    tile.style.cssText='border-radius:13px;padding:12px;cursor:pointer;background:var(--card);border:2px solid '+(done?'var(--green)':locked?'var(--border)':'var(--border)')+';box-shadow:var(--shadow);text-align:center;opacity:'+(locked?'.5':'1');
+    tile.innerHTML='<div style="font-size:1.8rem;margin-bottom:4px">'+(locked?'🔒':m.e)+'</div>'
+      +'<div style="font-family:var(--fd);font-size:.82rem;font-weight:900;color:var(--text);margin-bottom:2px">'+m.nm+'</div>'
+      +'<div style="font-size:.63rem;color:var(--muted);font-weight:700">'+m.rows+'x'+m.cols+' · '+m.d+'</div>'
+      +'<div style="background:'+(done?'#F0FFF4':locked?'#F3EEFF':'#FFF4E6')+';color:'+(done?'var(--gdk)':locked?'var(--pudk)':'var(--odk)')+';padding:2px 8px;border-radius:99px;font-size:.6rem;font-weight:900;display:inline-block;margin-top:4px">'+(done?'✅ Hecho':locked?'🔒 Bloqueado':'+'+m.pts+' pts')+'</div>';
+    tile.addEventListener('click',function(){
+      if(locked){openPremium('laberintos');}
+      else{labInit=false;startLab(m.id);}
+    });
+    grid.appendChild(tile);
+  });
+  el.appendChild(grid);
+
+  if(!hasPack('laberintos')){
+    const lk=document.createElement('div');
+    lk.style.cssText='background:linear-gradient(145deg,var(--p),var(--pdk));border-radius:var(--r);padding:18px;text-align:center;margin-top:14px;box-shadow:var(--shadow-lg)';
+    lk.innerHTML='<div style="font-size:1.8rem;margin-bottom:6px">🧩</div>'
+      +'<div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:#fff;margin-bottom:4px">Pack Laberintos – $1.990</div>'
+      +'<div style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:10px">Desbloquea 17 laberintos mas</div>';
+    const lb=document.createElement('button');
+    lb.style.cssText='background:#fff;border:none;border-radius:999px;padding:11px 22px;font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--p);cursor:pointer';
+    lb.textContent='💎 Comprar Pack – $1.990';
+    lb.addEventListener('click',function(){openPremium('laberintos');});
+    lk.appendChild(lb); el.appendChild(lk);
+  }
+}
+
+function startLab(id){
+  const m=MAZES.find(x=>x.id===id);if(!m)return;
+  labSt.maze=seededMaze(m.rows,m.cols,m.seed);labSt.curMaze=m;
+  labSt.pr=0;labSt.pc=0;labSt.moves=0;labSt.secs=0;labSt.active=true;
+  clearInterval(labSt.timer);
+  labSt.timer=setInterval(()=>{labSt.secs++;const t=document.getElementById('labTime');if(t)t.textContent=labSt.secs+'s';},1000);
+  const el=document.getElementById('labContent');if(!el)return;
+  el.innerHTML=`<div style="display:flex;gap:7px;margin-bottom:10px">
+    <div class="hud"><div class="hv" id="labMoves">0</div><div class="hl">Pasos</div></div>
+    <div class="hud"><div class="hv" id="labTime">0s</div><div class="hl">Tiempo</div></div>
+    <div class="hud"><div class="hv">${m.pts}</div><div class="hl">Pts</div></div>
+  </div>
+  <div id="labWrap" style="position:relative;width:100%;touch-action:none;margin-bottom:8px">
+    <canvas id="labCanvas"></canvas>
+  </div>
+  <div style="font-size:.75rem;color:var(--muted);text-align:center;margin-bottom:8px;background:var(--bg2);border-radius:9px;padding:7px;border:1.5px solid var(--border)">💡 Arrastra el dedo o usa las flechas</div>
+  <div class="dpad">
+    <div></div><button class="db" onclick="labMove('N')">↑</button><div></div>
+    <button class="db" onclick="labMove('W')">←</button>
+    <div style="background:var(--bg2);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted)">🧩</div>
+    <button class="db" onclick="labMove('E')">→</button>
+    <div></div><button class="db" onclick="labMove('S')">↓</button><div></div>
+  </div>
+  <button class="btn btn-gray btn-sm" style="display:block;width:100%;margin-top:6px" onclick="clearInterval(labSt.timer);labSt.active=false;renderLabList()">← Lista de laberintos</button>`;
+  setTimeout(()=>{
+    labDraw();
+    const wrap=document.getElementById('labWrap');
+    if(wrap){
+      wrap.addEventListener('touchstart',e=>{labTX=e.touches[0].clientX;labTY=e.touches[0].clientY;},{passive:true});
+      wrap.addEventListener('touchend',e=>{
+        const dx=e.changedTouches[0].clientX-labTX,dy=e.changedTouches[0].clientY-labTY,th=20;
+        if(Math.abs(dx)>Math.abs(dy)){dx>th?labMove('E'):dx<-th&&labMove('W');}
+        else{dy>th?labMove('S'):dy<-th&&labMove('N');}
+      },{passive:true});
+    }
+  },50);
+}
+function labDraw(){
+  const canvas=document.getElementById('labCanvas');if(!canvas||!labSt.maze)return;
+  const wrap=document.getElementById('labWrap');const ww=wrap?.offsetWidth||360;
+  const rows=labSt.maze.length,cols=labSt.maze[0].length;const cell=Math.floor(ww/cols);
+  canvas.width=cell*cols;canvas.height=cell*rows;
+  const ctx=canvas.getContext('2d');ctx.fillStyle='#FAFBFF';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='rgba(0,201,167,.2)';ctx.fillRect(0,0,cell,cell);
+  ctx.fillStyle='rgba(245,34,45,.2)';ctx.fillRect((cols-1)*cell,(rows-1)*cell,cell,cell);
+  ctx.strokeStyle='#1a1a2e';ctx.lineWidth=Math.max(1.5,cell/8);ctx.lineCap='square';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const x=c*cell,y=r*cell,cl=labSt.maze[r][c];
+    ctx.beginPath();
+    if(cl.N){ctx.moveTo(x,y);ctx.lineTo(x+cell,y);}
+    if(cl.S){ctx.moveTo(x,y+cell);ctx.lineTo(x+cell,y+cell);}
+    if(cl.W){ctx.moveTo(x,y);ctx.lineTo(x,y+cell);}
+    if(cl.E){ctx.moveTo(x+cell,y);ctx.lineTo(x+cell,y+cell);}
+    ctx.stroke();
+  }
+  const px=labSt.pc*cell+cell/2,py=labSt.pr*cell+cell/2,pr=cell*0.3;
+  ctx.beginPath();ctx.arc(px,py,pr+3,0,Math.PI*2);ctx.fillStyle='rgba(0,87,255,.2)';ctx.fill();
+  ctx.beginPath();ctx.arc(px,py,pr,0,Math.PI*2);ctx.fillStyle='#0057FF';ctx.fill();
+  ctx.font=`${Math.max(8,cell-10)}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🏠',cell*.5,cell*.5);ctx.fillText('⭐',(cols-.5)*cell,(rows-.5)*cell);
+}
+function labMove(dir){
+  if(!labSt.active||!labSt.maze)return;
+  const rows=labSt.maze.length,cols=labSt.maze[0].length;
+  const cell=labSt.maze[labSt.pr][labSt.pc];
+  if(dir==='N'&&!cell.N&&labSt.pr>0)labSt.pr--;
+  else if(dir==='S'&&!cell.S&&labSt.pr<rows-1)labSt.pr++;
+  else if(dir==='E'&&!cell.E&&labSt.pc<cols-1)labSt.pc++;
+  else if(dir==='W'&&!cell.W&&labSt.pc>0)labSt.pc--;
+  else{toast('🧱 ¡Muro!');return;}
+  labSt.moves++;const mv=document.getElementById('labMoves');if(mv)mv.textContent=labSt.moves;
+  labDraw();
+  if(labSt.pr===rows-1&&labSt.pc===cols-1){
+    labSt.active=false;clearInterval(labSt.timer);
+    const pts=labSt.curMaze?.pts||30;G.completed['lab_'+labSt.curMaze?.id]=true;
+    addPts(pts);toast('🏆 ¡Laberinto resuelto! +'+pts+' pts');
+    setTimeout(renderLabList,1500);
+  }
+}
+document.addEventListener('keydown',e=>{
+  const map={ArrowUp:'N',ArrowDown:'S',ArrowRight:'E',ArrowLeft:'W'};
+  if(map[e.key]&&labSt.active){e.preventDefault();labMove(map[e.key]);}
+});
+
+/* ═══════════════════════════════════════════════
+   MÓDULO CALENDARIO + PREMIOS
+═══════════════════════════════════════════════ */
+let calInit=false;
+const MNAMES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+let calY=new Date().getFullYear(),calM=new Date().getMonth();
+function initCal(){if(calInit)return;calInit=true;renderCal();}
+function calKey(d){const dt=d||new Date();return`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;}
+function calToday(){return calKey();}
+function calStatus(k){
+  const rec=G.calRecords[k];if(!rec||!Object.keys(rec).length)return'empty';
+  const done=Object.values(rec).filter(v=>v==='super'||v==='done').length;
+  const pct=done/G.calHabits.length;
+  if(pct>=.75)return'done';if(pct>=.4)return'partial';return'none';
+}
+function calCoins(){
+  let t=0;Object.values(G.calRecords).forEach(day=>Object.values(day).forEach(v=>{if(v==='super')t+=2;else if(v==='done')t+=1;}));
+  const spent=(G.calRewardHistory||[]).filter(r=>r.status!=='denied').reduce((a,r)=>a+r.cost,0);
+  return Math.max(0,t-spent);
+}
+function calStreak(){
+  let streak=0;for(let i=0;i<365;i++){const d=new Date();d.setDate(d.getDate()-i);if(calStatus(calKey(d))==='done')streak++;else if(i>0)break;}return streak;
+}
+function calStars(){
+  let s=0;Object.values(G.calRecords).forEach(day=>Object.values(day).forEach(v=>{if(v==='super'||v==='done')s++;}));return s;
+}
+const STAR_MAP={super:'🌟',done:'⭐',partial:'🌙',miss:'💪'};
+const STAR_LABEL={super:'¡Lo logré!',done:'Lo hice',partial:'A medias',miss:'No lo hice'};
+
+function renderCal(){
+  const el=document.getElementById('calContent');if(!el)return;
+  const streak=calStreak(),stars=calStars(),coins=calCoins();
+  G.missions.habits=stars>0;save();updateUI();
+  el.innerHTML=`
+  <!-- Stats -->
+  <div style="display:flex;gap:7px;padding:0 14px;margin-bottom:14px">
+    <div class="stat" style="flex:1"><div class="sv">${streak}🔥</div><div class="sl">Racha</div></div>
+    <div class="stat" style="flex:1"><div class="sv">${stars}⭐</div><div class="sl">Estrellas</div></div>
+    <div class="stat" style="flex:1;cursor:pointer" onclick="renderCalRewards()"><div class="sv" style="color:var(--red)">${coins}⭐</div><div class="sl">Premios</div></div>
+  </div>
+  <!-- Nav mes -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:0 14px;margin-bottom:10px">
+    <button onclick="calY-=calM===0?1:0;calM=(calM-1+12)%12;renderCal()" style="border:1.5px solid var(--border);background:var(--card);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem">‹</button>
+    <div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:var(--text)">${MNAMES[calM]} ${calY}</div>
+    <button onclick="calM=(calM+1)%12;if(calM===0)calY++;renderCal()" style="border:1.5px solid var(--border);background:var(--card);border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:1rem">›</button>
+  </div>
+  <!-- Headers días -->
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 14px;margin-bottom:4px">
+    ${['L','M','X','J','V','S','D'].map(d=>`<div style="text-align:center;font-size:.6rem;font-weight:900;color:var(--muted);padding:3px 0">${d}</div>`).join('')}
+  </div>
+  <!-- Grid calendario -->
+  <div class="cal-grid" style="padding:0 14px" id="calGrid"></div>
+  <!-- Hábitos de hoy -->
+  <div style="padding:0 14px">
+    <div style="font-family:var(--fd);font-size:.95rem;font-weight:900;color:var(--text);margin-bottom:10px">📋 Hábitos de hoy</div>
+    <div id="calToday"></div>
+    <button class="btn btn-t btn-sm" style="margin-top:8px;display:block;width:100%" onclick="renderCalRewards()">🎁 Mis premios (${coins} ⭐ disponibles)</button>
+  </div>`;
+  renderCalGrid();renderCalToday();
+}
+function renderCalGrid(){
+  const el=document.getElementById('calGrid');if(!el)return;el.innerHTML='';
+  const fd=new Date(calY,calM,1).getDay();const off=fd===0?6:fd-1;
+  const dim=new Date(calY,calM+1,0).getDate();const now=new Date();const tk=calToday();
+  for(let i=0;i<off;i++){const d=document.createElement('div');d.className='cal-day empty';el.appendChild(d);}
+  for(let d=1;d<=dim;d++){
+    const k=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=k===tk;const isFut=new Date(calY,calM,d)>now;const st=calStatus(k);
+    const rec=G.calRecords[k]||{};const vals=Object.values(rec).filter(v=>v);
+    const topV=vals.includes('super')?'super':vals.includes('done')?'done':vals.includes('partial')?'partial':vals.length?'miss':null;
+    const div=document.createElement('div');
+    div.className='cal-day'+(isT?' today':st==='done'?' done':st==='partial'?' partial':st==='none'&&vals.length?' none':'');
+    if(isFut)div.style.opacity='.4';
+    div.innerHTML=`<div class="day-num">${d}</div>${topV?`<div class="day-star">${STAR_MAP[topV]}</div>`:''}${isT?'<div style="width:4px;height:4px;border-radius:50%;background:var(--p)"></div>':''}`;
+    if(!isFut)div.addEventListener('click',()=>calOpenDay(k,d));
+    el.appendChild(div);
+  }
+}
+function renderCalToday(){
+  const el=document.getElementById('calToday');if(!el)return;
+  const k=calToday();const rec=G.calRecords[k]||{};
+  if(!G.calHabits.length){el.innerHTML='<p style="font-size:.83rem;color:var(--muted);padding:8px 0">Sin hábitos. Configúralos en ⚙️.</p>';return;}
+  el.innerHTML=G.calHabits.map(h=>{
+    const val=rec[h.id]||null;
+    return `<div class="habit-row" data-hid="${h.id}" data-k="${k}">
+      <span class="h-ico">${h.e}</span>
+      <div class="h-info"><div class="h-name">${h.name}</div><div class="h-sub">${h.m} · <span style="color:${val?'var(--green)':'var(--muted)'}">${val?STAR_LABEL[val]:'Toca para marcar'}</span></div></div>
+      <div class="h-status" style="background:var(--bg2);border-color:${val?{super:'var(--yellow)',done:'var(--yellow)',partial:'var(--muted)',miss:'var(--red)'}[val]||'var(--border)':'var(--border)'}" data-hid="${h.id}" data-k="${k}">${val?STAR_MAP[val]:'○'}</div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('[data-hid]').forEach(el=>{el.addEventListener('click',function(){openStarModal(this.dataset.k,+this.dataset.hid);});});
+}
+let starCB=null,starK=null,starHid=null,starSel=null;
+function openStarModal(k,hid){
+  starK=k;starHid=hid;starSel=null;
+  const h=G.calHabits.find(x=>x.id===hid);
+  document.getElementById('starHabitName').textContent=h?h.e+' '+h.name:'¿Cómo te fue?';
+  const existing=(G.calRecords[k]||{})[hid];
+  document.querySelectorAll('.star-opt').forEach(o=>{o.classList.toggle('on',o.dataset.v===existing);if(o.dataset.v===existing)starSel=existing;});
+  document.getElementById('modalStar').classList.add('on');
+}
+document.querySelectorAll('.star-opt').forEach(o=>o.addEventListener('click',function(){document.querySelectorAll('.star-opt').forEach(x=>x.classList.remove('on'));this.classList.add('on');starSel=this.dataset.v;}));
+document.getElementById('btnConfirmStar').addEventListener('click',()=>{
+  if(!starSel){toast('⚠️ Elige una opción');return;}
+  if(!G.calRecords[starK])G.calRecords[starK]={};
+  G.calRecords[starK][starHid]=starSel;save();
+  document.getElementById('modalStar').classList.remove('on');
+  const msgs={super:'🌟 ¡Increíble!',done:'⭐ ¡Bien hecho!',partial:'🌙 Casi lo logras',miss:'💪 ¡Mañana más!'};
+  toast(msgs[starSel]);G.missions.habits=true;save();updateUI();renderCalGrid();renderCalToday();
+});
+document.getElementById('btnCancelStar').addEventListener('click',()=>document.getElementById('modalStar').classList.remove('on'));
+function calOpenDay(k,d){
+  const rec=G.calRecords[k]||{};const done=Object.values(rec).filter(v=>v==='super'||v==='done').length;const tot=G.calHabits.length;const pct=tot?Math.round((done/tot)*100):0;
+  let mt='○ Sin registrar',mm='No marcaste tus hábitos',mc='var(--bg2)';
+  if(pct>=80){mt='🏆 ¡Increíble!';mm=`${done} de ${tot} hábitos completados`;mc='#F0FFF4';}
+  else if(pct>=50){mt='💪 ¡Buen esfuerzo!';mm=`${done} de ${tot} hábitos`;mc='#FFF9F0';}
+  else if(pct>0){mt='🌱 ¡No te rindas!';mm=`Solo ${done} de ${tot}. ¡Mañana más!`;mc='#FFF1F0';}
+  const modal=document.createElement('div');modal.style.cssText='position:fixed;inset:0;background:rgba(13,27,62,.65);z-index:9000;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)';
+  modal.innerHTML=`<div style="background:var(--card);border-radius:28px 28px 0 0;padding:20px 18px 34px;width:100%;max-width:430px;max-height:88dvh;overflow-y:auto;animation:slideUp .35s cubic-bezier(.34,1.2,.64,1)">
+    <div style="width:38px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 12px"></div>
+    <div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:var(--text);margin-bottom:10px">📅 ${MNAMES[calM]} ${d}</div>
+    <div style="background:${mc};border-radius:12px;padding:11px;margin-bottom:12px">
+      <div style="font-size:.85rem;font-weight:900;color:var(--text);margin-bottom:2px">${mt}</div>
+      <div style="font-size:.78rem;color:var(--text2);font-weight:700">${mm}</div>
+    </div>
+    ${G.calHabits.map(h=>{const val=rec[h.id]||null;return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)"><span style="font-size:1.3rem">${h.e}</span><div style="flex:1"><div style="font-size:.85rem;font-weight:800;color:var(--text)">${h.name}</div></div><span style="font-size:1.3rem">${val?STAR_MAP[val]:'○'}</span></div>`;}).join('')}
+    <button onclick="this.closest('[style*=position]').remove()" style="width:100%;border:none;background:var(--bg2);border-radius:999px;padding:12px;font-size:.88rem;font-weight:800;cursor:pointer;margin-top:12px;font-family:var(--fb)">Cerrar</button>
+  </div>`;
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});document.body.appendChild(modal);
+}
+function renderCalRewards(){
+  const coins=calCoins();const el=document.getElementById('calContent');if(!el)return;
+  el.innerHTML=`
+  <div style="background:linear-gradient(135deg,#F59E0B,#EF4444);border-radius:18px;padding:16px;margin:0 14px 14px;color:#fff;display:flex;align-items:center;gap:14px">
+    <div style="font-size:3rem">⭐</div>
+    <div><div style="font-family:var(--fd);font-size:2.2rem;font-weight:900">${coins}</div><div style="font-size:.82rem;opacity:.8">estrellas disponibles</div></div>
+    <div style="margin-left:auto;text-align:right;font-size:.72rem;opacity:.7">🌟 = 2⭐ · ⭐ = 1⭐</div>
+  </div>
+  <div style="padding:0 14px">
+    <div style="font-family:var(--fd);font-size:.95rem;font-weight:900;color:var(--text);margin-bottom:10px">🎁 Premios disponibles</div>
+    ${G.calRewards.map(r=>{const can=coins>=r.cost;return`<div style="background:var(--card);border-radius:14px;padding:13px;margin-bottom:9px;border:2px solid ${can?'var(--green)':'var(--border)'};display:flex;align-items:center;gap:11px;box-shadow:var(--shadow)">
+      <span style="font-size:1.8rem">${r.e}</span>
+      <div style="flex:1"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--text)">${r.name}</div>
+      <div style="font-size:.72rem;color:var(--muted);font-weight:700">Cuesta ${r.cost}⭐ · ${can?'<span style="color:var(--gdk)">¡Puedes pedirlo!</span>':'Te faltan '+(r.cost-coins)+'⭐'}</div></div>
+      <button onclick="claimReward(${r.id})" style="border:none;border-radius:999px;padding:8px 12px;font-size:.78rem;font-weight:900;cursor:pointer;background:${can?'linear-gradient(135deg,var(--green),var(--gdk))':'var(--bg2)'};color:${can?'#fff':'var(--muted)'}">${can?'🎉 Pedir':'🔒'}</button>
+    </div>`;}).join('')}
+    <!-- Historial -->
+    ${G.calRewardHistory.length?`<div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--text);margin:14px 0 8px">📋 Historial</div>
+    ${G.calRewardHistory.slice(-5).reverse().map(r=>`<div style="display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:1.4rem">${r.e}</span>
+      <div style="flex:1"><div style="font-size:.85rem;font-weight:800;color:var(--text)">${r.name}</div>
+      <div style="font-size:.7rem;color:var(--muted);font-weight:700">${r.date} · ${r.status==='pending'?'⏳ Esperando':r.status==='approved'?'✅ Cumplido':'❌ Rechazado'}</div></div>
+      <span style="font-size:.72rem;font-weight:900;color:var(--odk)">-${r.cost}⭐</span>
+    </div>`).join('')}`:''}
+    <button class="btn btn-gray btn-sm" style="display:block;width:100%;margin-top:12px" onclick="initCal=false;initCal();renderCal()">← Volver al calendario</button>
+  </div>`;
+}
+function claimReward(id){
+  const r=G.calRewards.find(x=>x.id===id);if(!r)return;
+  const coins=calCoins();if(coins<r.cost){toast('⚠️ No tienes suficientes estrellas');return;}
+  G.calRewardHistory.push({...r,date:new Date().toLocaleDateString('es-CL'),status:'pending'});save();
+  const cel=document.createElement('div');cel.style.cssText='position:fixed;inset:0;background:rgba(13,27,62,.7);z-index:9999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)';
+  cel.innerHTML=`<div style="background:var(--card);border-radius:24px;padding:28px 24px;text-align:center;max-width:320px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-size:4rem;margin-bottom:10px;animation:spPop .5s cubic-bezier(.34,1.56,.64,1)">${r.e}</div>
+    <div style="font-family:var(--fd);font-size:1.4rem;font-weight:900;color:var(--text);margin-bottom:6px">¡Premio ganado!</div>
+    <div style="font-family:var(--fd);font-size:1rem;font-weight:800;color:var(--odk);margin-bottom:10px">${r.name}</div>
+    <div style="font-size:.82rem;color:var(--text2);margin-bottom:16px;line-height:1.5">Muéstraselo a papá o mamá para que lo aprueben 👨‍👩‍👧</div>
+    <button onclick="this.closest('[style*=fixed]').remove();renderCalRewards();" style="width:100%;border:none;background:linear-gradient(135deg,var(--orange),var(--odk));border-radius:999px;padding:13px;font-size:.9rem;font-weight:900;color:#fff;cursor:pointer;font-family:var(--fb)">🏃 ¡Voy a mostrárselos!</button>
+  </div>`;
+  document.body.appendChild(cel);
+}
+
+/* ═══════════════════════════════════════════════
+   MÓDULO ESTUDIO POMODORO
+═══════════════════════════════════════════════ */
+const POMETHODS=[
+  {id:'tdah',nm:'🧠 Pomodoro TDAH',ds:'15 min · 5 min pausa · Recomendado',study:15,break_:5,ex:10,poms:4,tag:'Recomendado'},
+  {id:'mini',nm:'⚡ Mini-Pomodoro',ds:'10 min · 3 min pausa · Fácil',study:10,break_:3,ex:8,poms:4,tag:'Fácil'},
+  {id:'classic',nm:'🍅 Clásico',ds:'25 min · 5 min pausa · Avanzado',study:25,break_:5,ex:15,poms:4,tag:'Avanzado'},
+];
+const PEXERCISES=[
+  {e:'🦘',nm:'Saltar en el lugar',rp:'20 saltos',tip:'¡Activa la dopamina con cada salto!'},
+  {e:'💃',nm:'Bailar libre',rp:'1 minuto',tip:'Pon tu canción favorita y muévete'},
+  {e:'⭐',nm:'Jumping jacks',rp:'15 veces',tip:'Brazos arriba al saltar'},
+  {e:'🐸',nm:'Saltos de rana',rp:'10 saltos agachado',tip:'Agáchate bien para activar las piernas'},
+  {e:'🤸',nm:'Estiramiento',rp:'10 veces cada lado',tip:'Abre el pecho, respira hondo'},
+  {e:'🕺',nm:'Sacudir el cuerpo',rp:'30 segundos',tip:'Sacude brazos, piernas y cuerpo'},
+  {e:'🎯',nm:'Rodillas alternadas',rp:'20 veces',tip:'Mano derecha con rodilla izquierda'},
+  {e:'🧘',nm:'Respiración profunda',rp:'5 respiraciones',tip:'Inhala 4 seg, aguanta 2, exhala 4'},
+  {e:'💪',nm:'Flexiones de pared',rp:'10 veces',tip:'Manos en la pared, empuja tu cuerpo'},
+  {e:'🚶',nm:'Caminar en el lugar',rp:'30 pasos rápidos',tip:'Levanta las rodillas bien alto'},
+  {e:'🙆',nm:'Círculos con el cuello',rp:'5 círculos lentos',tip:'Suave y sin forzar'},
+  {e:'🎪',nm:'Girar los brazos',rp:'10 veces hacia adelante y atrás',tip:'Activa hombros y circulación'},
+];
+const STUDY_TIPS_LIST=['📚 Concéntrate en una sola cosa a la vez','✏️ Toma notas con tus propias palabras','🎯 Un objetivo claro por sesión','🔇 Silencia el celular y notificaciones','💡 Si te distraes, vuelve — es normal'];
+const CIRC=2*Math.PI*85;
+let estSt={phase:'idle',pomsDone:0,cyclesDone:0,left:0,total:0,running:false,iv:null,method:POMETHODS[0],subject:'',exSet:[],exIdx:0};
+let estInit=false;
+function initEst(){if(estInit)return;estInit=true;renderEst();}
+function renderEst(){
+  const el=document.getElementById('estContent');if(!el)return;
+  el.innerHTML=`
+  <div style="background:#EBF5FF;border-radius:13px;padding:11px 13px;margin-bottom:14px;border:1.5px solid #BAD7FF">
+    <div style="font-size:.82rem;font-weight:800;color:var(--p);margin-bottom:3px">⚡ Técnica Pomodoro + Ejercicio</div>
+    <div style="font-size:.77rem;color:var(--text2);line-height:1.55">El ejercicio libera <strong>dopamina y norepinefrina</strong> — el mismo efecto que la medicación para TDAH, pero natural. 🧠</div>
+  </div>
+  <!-- Métodos -->
+  <div style="margin-bottom:14px">
+    <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:8px">🎯 Elige tu método</div>
+    ${POMETHODS.map(m=>`<div data-mid="${m.id}" class="pomethod-card" style="border-radius:14px;padding:12px 14px;margin-bottom:8px;cursor:pointer;border:2.5px solid ${estSt.method.id===m.id?'var(--p)':'var(--border)'};background:${estSt.method.id===m.id?'#EBF1FF':'var(--card)'};box-shadow:var(--shadow)">
+      <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:2px">${m.nm}</div>
+      <div style="font-size:.75rem;color:var(--muted);font-weight:700">${m.ds}</div>
+      <span style="display:inline-block;padding:2px 8px;border-radius:99px;font-size:.65rem;font-weight:900;background:#EBF1FF;color:var(--p);margin-top:4px">${m.tag}</span>
+    </div>`).join('')}
+  </div>
+  <!-- Qué voy a estudiar -->
+  <div style="margin-bottom:14px">
+    <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:8px">📋 ¿Qué voy a estudiar hoy?</div>
+    <input class="field" id="estSubject" type="text" placeholder="Ej: Matemáticas · Fracciones" maxlength="40" value="${estSt.subject}"/>
+  </div>
+  <!-- Stats hoy -->
+  <div style="display:flex;gap:7px;margin-bottom:14px">
+    <div class="hud"><div class="hv">${estSt.pomsDone}</div><div class="hl">Pomodoros</div></div>
+    <div class="hud"><div class="hv">${estSt.cyclesDone}</div><div class="hl">Ciclos</div></div>
+    <div class="hud"><div class="hv">${G.pts}</div><div class="hl">Pts totales</div></div>
+  </div>
+  <button class="btn btn-p" onclick="estStart()">🍅 ¡Empezar a estudiar!</button>
+  <div id="estTimer" style="margin-top:14px"></div>
+  <div style="background:#FFF9F0;border-radius:13px;padding:12px 14px;margin-top:14px;border:1.5px solid #FCD34D">
+    <div style="font-size:.82rem;font-weight:800;color:var(--odk);margin-bottom:3px">🔬 La ciencia detrás</div>
+    <div style="font-size:.77rem;color:var(--text2);line-height:1.55">Los estudios muestran que 5 min de ejercicio aumentan la concentración hasta 20 min. Es el descanso más efectivo para el cerebro con TDAH.</div>
+  </div>`;
+}
+function estStart(){
+  const inp=document.getElementById('estSubject');estSt.subject=inp?inp.value.trim():'Estudio';
+  estRenderTimer('study');
+}
+function estFmt(s){return`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+function estUpdateRing(left,total,color){
+  const ring=document.getElementById('estRing');const disp=document.getElementById('estDisp');
+  if(ring){ring.style.strokeDasharray=CIRC;ring.style.strokeDashoffset=CIRC*(1-left/total);ring.style.stroke=color;}
+  if(disp)disp.textContent=estFmt(left);
+}
+function estRenderTimer(phase){
+  estSt.phase=phase;clearInterval(estSt.iv);estSt.running=false;
+  const isSt=phase==='study',isBr=phase==='break',isEx=phase==='exercise';
+  const secs=(isSt?estSt.method.study:isBr?estSt.method.break_:estSt.method.ex)*60;
+  estSt.left=secs;estSt.total=secs;
+  const color=isSt?'var(--p)':isBr?'var(--teal)':'var(--orange)';
+  const label=isSt?'ESTUDIA':isBr?'PAUSA':'EJERCICIO';
+  const emoji=isSt?'📚':isBr?'🌿':'🏃';
+  const el=document.getElementById('estTimer');if(!el)return;
+  el.innerHTML=`<div class="card">
+    <!-- Track -->
+    <div style="display:flex;gap:4px;margin-bottom:12px">
+      ${Array.from({length:estSt.method.poms},(_,i)=>`<div style="flex:1;height:9px;border-radius:99px;background:${i<estSt.pomsDone?'var(--p)':'var(--border)'}"></div>`).join('')}
+      <div style="width:11px;height:9px;border-radius:99px;background:${phase==='exercise'?'var(--orange)':'var(--border)'}"></div>
+    </div>
+    <!-- Ring -->
+    <div class="timer-ring-wrap">
+      <svg viewBox="0 0 200 200" width="200" height="200" style="position:absolute;inset:0">
+        <circle class="timer-ring-bg" cx="100" cy="100" r="85"/>
+        <circle id="estRing" class="timer-ring-fill" cx="100" cy="100" r="85" style="stroke-dasharray:${CIRC};stroke-dashoffset:0;stroke:${color.replace('var(--p)','#0057FF').replace('var(--teal)','#00C9A7').replace('var(--orange)','#fa8c16')}"/>
+      </svg>
+      <div class="timer-center">
+        <div style="font-size:2rem;margin-bottom:3px">${emoji}</div>
+        <div class="timer-time" id="estDisp">${estFmt(secs)}</div>
+        <div class="timer-lbl" style="color:${color.replace('var(--p)','#0057FF').replace('var(--teal)','#00C9A7').replace('var(--orange)','#fa8c16')}">${label}</div>
+        <div style="font-size:.65rem;color:var(--muted);font-weight:700">${isSt?'Sesión '+(estSt.pomsDone+1)+'/'+estSt.method.poms:''}</div>
+      </div>
+    </div>
+    <!-- Controls -->
+    <div class="t-controls">
+      <button class="tc tc-stop" onclick="estStop()">⏹</button>
+      <button class="tc tc-play" id="estPlayBtn" onclick="estToggle()">▶ Empezar</button>
+      <button class="tc tc-skip" onclick="estSkip()">⏭</button>
+    </div>
+    <!-- Tip -->
+    ${isSt?`<div style="background:var(--bg2);border-radius:12px;padding:10px;text-align:center;border:1.5px solid var(--border);font-size:.8rem;font-weight:700;color:var(--text)">${STUDY_TIPS_LIST[Math.floor(Math.random()*STUDY_TIPS_LIST.length)]}</div>`:
+      isBr?`<div style="background:#F0FFFB;border-radius:12px;padding:10px;text-align:center;border:1.5px solid var(--tdk)"><div style="font-size:1.5rem;display:inline-block;animation:exB .6s cubic-bezier(.34,1.56,.64,1) infinite alternate">🌿</div><div style="font-size:.8rem;font-weight:700;color:var(--tdk);margin-top:4px">Respira · Toma agua · Descansa los ojos</div></div>`:''}
+  </div>
+  ${isEx?estRenderExCard():''}`;
+  estUpdateRing(secs,secs,color.replace('var(--p)','#0057FF').replace('var(--teal)','#00C9A7').replace('var(--orange)','#fa8c16'));
+}
+function estRenderExCard(){
+  const exSet=shuffle([...PEXERCISES]).slice(0,4);estSt.exSet=exSet;estSt.exIdx=0;
+  return `<div class="card" id="estExCard">
+    <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--orange);margin-bottom:8px">🏃 Pausa Activa</div>
+    <div class="ex-card">
+      <span class="ex-emoji" id="estExEmoji">${exSet[0].e}</span>
+      <div style="font-family:var(--fd);font-size:1.2rem;font-weight:900;margin-bottom:5px" id="estExNm">${exSet[0].nm}</div>
+      <div style="font-size:.85rem;opacity:.85;margin-bottom:8px" id="estExRp">${exSet[0].rp}</div>
+      <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:8px;font-size:.78rem;font-weight:700">${exSet[0].tip}</div>
+    </div>
+    <div id="estExList">${exSet.map((e,i)=>`<div class="ex-item${i===0?' active':''}"><span style="font-size:1.3rem">${e.e}</span><div style="flex:1"><div style="font-size:.83rem;font-weight:800;color:${i===0?'var(--odk)':'var(--text)'}">${e.nm}</div><div style="font-size:.68rem;color:var(--muted);font-weight:700">${e.rp}</div></div>${i===0?'<span style="font-size:.65rem;font-weight:900;color:var(--odk);background:#FFF4E6;padding:2px 7px;border-radius:99px">Ahora</span>':''}</div>`).join('')}</div>
+    <button class="btn btn-o" style="margin-top:10px" onclick="estNextEx()">✅ ¡Hecho! Siguiente →</button>
+  </div>`;
+}
+function estNextEx(){
+  estSt.exIdx++;
+  if(estSt.exIdx>=4){addPts(50);G.missions.pause=true;save();updateUI();toast('🏆 ¡Ejercicios terminados! +50 pts');estSt.pomsDone=0;estSt.cyclesDone++;setTimeout(()=>estRenderTimer('study'),1000);}
+  else{
+    const ex=estSt.exSet[estSt.exIdx];
+    const em=document.getElementById('estExEmoji');const nm=document.getElementById('estExNm');const rp=document.getElementById('estExRp');
+    if(em)em.textContent=ex.e;if(nm)nm.textContent=ex.nm;if(rp)rp.textContent=ex.rp;
+    document.querySelectorAll('.ex-item').forEach((d,i)=>{d.classList.toggle('active',i===estSt.exIdx);});
+  }
+}
+function estToggle(){
+  const btn=document.getElementById('estPlayBtn');
+  estSt.running=!estSt.running;if(btn)btn.textContent=estSt.running?'⏸ Pausar':'▶ Continuar';
+  const color=estSt.phase==='study'?'#0057FF':estSt.phase==='break'?'#00C9A7':'#fa8c16';
+  if(estSt.running){estSt.iv=setInterval(()=>{estSt.left--;estUpdateRing(estSt.left,estSt.total,color);if(estSt.left<=0){clearInterval(estSt.iv);estSt.running=false;estOnEnd();}},1000);}
+  else clearInterval(estSt.iv);
+}
+function estStop(){clearInterval(estSt.iv);estSt.running=false;estSt.phase='idle';renderEst();}
+function estSkip(){clearInterval(estSt.iv);estSt.running=false;estOnEnd();}
+function estOnEnd(){
+  if(estSt.phase==='study'){
+    estSt.pomsDone++;G.pomsDone++;G.missions.study=true;addPts(30);save();updateUI();
+    if(estSt.pomsDone>=estSt.method.poms){toast('🎊 ¡Ciclo completo! ¡A moverse! 🏃');setTimeout(()=>estRenderTimer('exercise'),800);}
+    else{estRenderTimer('break');toast('⏰ ¡Pomodoro completo! Toma un descanso 🌿');}
+  }else if(estSt.phase==='break'){estRenderTimer('study');toast('⏰ ¡Pausa terminada! A seguir 📚');}
+}
+
+/* ═══════════════════════════════════════════════
+   MÓDULO PERFIL
+═══════════════════════════════════════════════ */
+let perInit=false;
+function initPer(){if(perInit)return;perInit=true;renderPer();}
+function renderPer(){
+  const el=document.getElementById('perContent');if(!el)return;
+  const lv=getLv();const ni=LEVELS.indexOf(lv);const nx=LEVELS[Math.min(ni+1,LEVELS.length-1)][0];const pct=Math.min(100,Math.round(((G.pts-lv[0])/(nx-lv[0]||1))*100));
+  const LOGROS=[
+    {e:'🌱',t:'Primera actividad',s:'Juega por primera vez',ok:G.gamesPlayed>=1},
+    {e:'⭐',t:'10 puntos',s:'Gana 10 puntos',ok:G.pts>=10},
+    {e:'🎮',t:'5 actividades',s:'Juega 5 veces',ok:G.gamesPlayed>=5},
+    {e:'📚',t:'3 pomodoros',s:'Estudia 3 veces',ok:G.pomsDone>=3},
+    {e:'🌟',t:'50 puntos',s:'Gana 50 pts',ok:G.pts>=50},
+    {e:'🔥',t:'Racha de hábitos',s:'3 días seguidos',ok:calStreak()>=3},
+    {e:'🏆',t:'100 puntos',s:'Gana 100 pts',ok:G.pts>=100},
+    {e:'💎',t:'Premium',s:'Usuario premium',ok:G.premium},
+    {e:'🚀',t:'10 pomodoros',s:'Estudia 10 veces',ok:G.pomsDone>=10},
+    {e:'👑',t:'Leyenda',s:'Llega a 450 pts',ok:G.pts>=450},
+  ];
+  el.innerHTML=`
+  <!-- Hero -->
+  <div style="background:linear-gradient(135deg,var(--p),var(--pdk));border-radius:20px;padding:22px;margin-bottom:14px;color:#fff;text-align:center">
+    <div style="font-size:3.5rem;margin-bottom:8px">🧠</div>
+    <div style="font-family:var(--fd);font-size:1.3rem;font-weight:900;margin-bottom:3px" id="perNameDisp">${G.kidName||'Campeón'}</div>
+    <div style="font-size:.82rem;opacity:.75;margin-bottom:12px">Nivel ${ni+1} · ${lv[1]}</div>
+    <div style="background:rgba(255,255,255,.2);border-radius:999px;height:10px;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:${pct}%;background:#fff;border-radius:999px;transition:width .5s"></div></div>
+    <div style="font-size:.75rem;opacity:.7">${G.pts} / ${nx} pts para el siguiente nivel</div>
+  </div>
+  <!-- Nombre -->
+  <div class="card" style="margin-bottom:12px">
+    <div style="font-size:.78rem;font-weight:800;color:var(--text2);margin-bottom:8px">👤 Nombre del niño/a</div>
+    <div style="display:flex;gap:8px">
+      <input class="field" id="perNameInp" type="text" placeholder="Ej: Lucía" maxlength="20" value="${G.kidName}" style="flex:1"/>
+      <button onclick="G.kidName=document.getElementById('perNameInp').value.trim()||'Campeón';save();updateUI();renderPer();toast('✅ ¡Hola, '+G.kidName+'!');" style="border:none;background:linear-gradient(135deg,var(--green),var(--gdk));border-radius:999px;padding:10px 16px;font-size:.82rem;font-weight:900;color:#fff;cursor:pointer;font-family:var(--fb)">Guardar</button>
+    </div>
+  </div>
+  <!-- Premium status -->
+  <div style="background:${G.premium?'linear-gradient(135deg,var(--green),var(--gdk))':'linear-gradient(135deg,var(--p),var(--pdk))'};border-radius:14px;padding:14px;margin-bottom:14px;color:#fff;display:flex;align-items:center;gap:12px">
+    <span style="font-size:1.8rem">${G.premium?'✅':'💎'}</span>
+    <div style="flex:1">
+      <div style="font-family:var(--fd);font-size:.9rem;font-weight:900">${G.premium?'✨ Premium Activo':'Versión Gratuita'}</div>
+      <div style="font-size:.75rem;opacity:.8">${G.premium?'Todo el contenido desbloqueado':'Desbloquea todo desde $3.990/mes'}</div>
+    </div>
+    ${!G.premium?`<button onclick="openPremium()" style="border:none;background:rgba(255,255,255,.2);border-radius:999px;padding:8px 14px;font-size:.78rem;font-weight:900;color:#fff;cursor:pointer">Ver →</button>`:''}
+  </div>
+  <!-- Stats -->
+  <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:10px">📊 Mi progreso</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+    ${[{v:G.pts,l:'Puntos totales',c:'var(--p)'},{v:G.gamesPlayed,l:'Actividades',c:'var(--orange)'},{v:G.pomsDone,l:'Pomodoros',c:'var(--purple)'},{v:Object.keys(G.completed).length,l:'Completados',c:'var(--green)'}].map(s=>`<div class="card" style="text-align:center;margin-bottom:0"><div style="font-family:var(--fd);font-size:1.6rem;font-weight:900;color:${s.c}">${s.v}</div><div style="font-size:.68rem;color:var(--muted);font-weight:700">${s.l}</div></div>`).join('')}
+  </div>
+  <!-- Logros -->
+  <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:10px">🏆 Logros (${LOGROS.filter(l=>l.ok).length}/${LOGROS.length})</div>
+  <div class="logro-grid">
+    ${LOGROS.map(l=>`<div class="logro${l.ok?' on':''}"><span class="logro-ico">${l.ok?l.e:'🔒'}</span><div class="logro-t">${l.t}</div><div class="logro-s">${l.s}</div></div>`).join('')}
+  </div>
+  <!-- Configuración de hábitos -->
+  <div style="font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--text);margin-bottom:10px">⚙️ Configurar hábitos</div>
+  <div id="habList"></div>
+  <button class="btn btn-t" onclick="addHabit()" style="margin-top:4px">➕ Agregar hábito</button>
+  <button class="btn btn-gray" onclick="if(confirm('¿Borrar todos los datos?')){G.pts=0;G.gamesPlayed=0;G.pomsDone=0;G.completed={};G.missions={games:false,study:false,habits:false,pause:false};G.calRecords={};G.calRewardHistory=[];save();perInit=false;initPer();toast('🗑️ Datos borrados');}" style="margin-top:12px;opacity:.5">🗑️ Borrar todos los datos</button>`;
+  renderHabList();
+}
+function renderHabList(){
+  const el=document.getElementById('habList');if(!el)return;el.innerHTML='';
+  G.calHabits.forEach(h=>{
+    const d=document.createElement('div');
+    d.style.cssText='display:flex;align-items:center;gap:10px;background:var(--card);border-radius:12px;padding:11px;margin-bottom:7px;border:1.5px solid var(--border);box-shadow:var(--shadow)';
+    d.innerHTML=`<span style="font-size:1.4rem">${h.e}</span><span style="flex:1;font-size:.87rem;font-weight:800;color:var(--text)">${h.name}<br><span style="font-size:.68rem;color:var(--muted);font-weight:700">${h.m}</span></span><button data-id="${h.id}" style="border:none;background:transparent;font-size:1.1rem;cursor:pointer;color:var(--red)">🗑️</button>`;
+    d.querySelector('[data-id]').addEventListener('click',function(){G.calHabits=G.calHabits.filter(x=>x.id!==+this.dataset.id);save();renderHabList();toast('🗑️ Hábito eliminado');});
+    el.appendChild(d);
+  });
+}
+const HAB_EMOJIS=['🦷','🛏️','🎒','📚','🧼','🌙','🏃','🍎','💧','🧹','🐶','👟','🎨','✏️','🎵','🌸','⚽','🏊','🚲','🧠','💤','🍽️'];
+function addHabit(){
+  let se='⭐',sm='mañana';
+  const modal=document.createElement('div');modal.style.cssText='position:fixed;inset:0;background:rgba(13,27,62,.65);z-index:9000;display:flex;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)';
+  modal.innerHTML=`<div style="background:var(--card);border-radius:28px 28px 0 0;padding:20px 18px 36px;width:100%;max-width:430px;animation:slideUp .35s cubic-bezier(.34,1.2,.64,1)">
+    <div style="width:38px;height:4px;background:var(--border);border-radius:99px;margin:0 auto 14px"></div>
+    <div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:var(--text);margin-bottom:12px">➕ Nuevo hábito</div>
+    <div style="font-size:.78rem;font-weight:800;color:var(--text2);margin-bottom:5px">Emoji</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-height:120px;overflow-y:auto;margin-bottom:12px" id="epicker"></div>
+    <div style="font-size:.78rem;font-weight:800;color:var(--text2);margin-bottom:5px">Nombre</div>
+    <input class="field" id="habNameInp" type="text" placeholder="Ej: Ordenar mi mochila" maxlength="30" style="margin-bottom:10px"/>
+    <div style="font-size:.78rem;font-weight:800;color:var(--text2);margin-bottom:5px">Momento</div>
+    <div style="display:flex;gap:7px;margin-bottom:14px">
+      ${['mañana','tarde','noche'].map(m=>`<button data-m="${m}" style="flex:1;border:2px solid var(--border);background:var(--card);border-radius:999px;padding:8px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:var(--fb)">${{mañana:'🌅',tarde:'☀️',noche:'🌙'}[m]} ${m}</button>`).join('')}
+    </div>
+    <button id="habSaveBtn" style="width:100%;border:none;background:linear-gradient(135deg,var(--green),var(--gdk));border-radius:999px;padding:13px;font-size:.9rem;font-weight:900;color:#fff;cursor:pointer;font-family:var(--fb);box-shadow:var(--shadow)">✅ Agregar hábito</button>
+    <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;border:none;background:var(--bg2);border-radius:999px;padding:11px;font-size:.85rem;font-weight:800;cursor:pointer;margin-top:8px;font-family:var(--fb)">Cancelar</button>
+  </div>`;
+  // Build emoji picker
+  const ep=modal.querySelector('#epicker');
+  HAB_EMOJIS.forEach(e=>{
+    const btn=document.createElement('button');btn.style.cssText='border:none;background:transparent;font-size:1.5rem;cursor:pointer;border-radius:8px;padding:4px;transition:background .12s';
+    btn.textContent=e;btn.addEventListener('click',()=>{se=e;ep.querySelectorAll('button').forEach(b=>b.style.background='');btn.style.background='var(--bg2)';});ep.appendChild(btn);
+  });
+  // Moment buttons
+  modal.querySelectorAll('[data-m]').forEach(btn=>btn.addEventListener('click',function(){sm=this.dataset.m;modal.querySelectorAll('[data-m]').forEach(b=>{b.style.background='var(--card)';b.style.borderColor='var(--border)';b.style.color='var(--text)';});this.style.background='var(--p)';this.style.borderColor='var(--p)';this.style.color='#fff';}));
+  // Save
+  modal.querySelector('#habSaveBtn').addEventListener('click',()=>{
+    const name=modal.querySelector('#habNameInp').value.trim();
+    if(!name){toast('⚠️ Escribe el nombre');return;}
+    G.calHabits.push({id:Date.now(),e:se,name,m:sm});save();modal.remove();renderHabList();toast('✅ Hábito agregado: '+se+' '+name);
+  });
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});document.body.appendChild(modal);
+}
+
+/* ═══════════════════════════════════════════════
+   INIT GLOBAL
+═══════════════════════════════════════════════ */
+// Splash - usar múltiples métodos para asegurar que desaparezca
+function hideSplash(){
+  const sp=document.getElementById('splash');
+  if(!sp)return;
+  const bar=document.getElementById('spBar');
+  if(bar)bar.style.width='100%';
+  setTimeout(function(){
+    sp.style.opacity='0';
+    sp.style.pointerEvents='none';
+    setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},600);
+  },1800);
+}
+// Intentar con load
+window.addEventListener('load',hideSplash);
+// Fallback: si load no dispara en 3 segundos, forzar
+setTimeout(hideSplash,3000);
+// También con DOMContentLoaded como backup
+document.addEventListener('DOMContentLoaded',()=>{
+  setTimeout(hideSplash,100);
+  load();
+  renderModGrid(MOD_GAMES,'gridGames');
+  renderModGrid(MOD_LANG,'gridLang');
+  renderModGrid(MOD_STUDY,'gridStudy');
+  renderParent();updateUI();
+
+  // Tabs
+  document.getElementById('tabKid').addEventListener('click',()=>{
+    document.getElementById('kidPanel').style.display='block';
+    document.getElementById('parentPanel').style.display='none';
+    document.getElementById('tabKid').classList.add('on');
+    document.getElementById('tabParent').classList.remove('on');
+  });
+  document.getElementById('tabParent').addEventListener('click',()=>{
+    document.getElementById('kidPanel').style.display='none';
+    document.getElementById('parentPanel').style.display='block';
+    document.getElementById('tabParent').classList.add('on');
+    document.getElementById('tabKid').classList.remove('on');
+  });
+
+  // Bottom nav
+  // Listener delegado para pomethod-card
+  document.getElementById('estContent').addEventListener('click',function(e){
+    const card=e.target.closest('.pomethod-card');
+    if(card){const mid=card.dataset.mid;const m=POMETHODS.find(x=>x.id===mid);if(m){estSt.method=m;renderEst();}}
+  });
+
+  document.querySelectorAll('.nb').forEach(btn=>btn.addEventListener('click',()=>goTo(btn.dataset.s)));
+
+  // Premium
+  document.getElementById('btnBuyP').addEventListener('click',buyPremium);
+  document.getElementById('btnBuyPack').addEventListener('click',buyPremium);
+  document.getElementById('btnCloseP').addEventListener('click',closePremium);
+
+  // Keyboard fix
+  document.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)&&labSt.active)e.preventDefault();});
+
+  // === ONBOARDING ===
+    var ob=document.getElementById('screen-onboarding');
+    // Mostrar onboarding solo si no tiene nombre
+    if(!G.kidName){
+      ob.style.display='flex';
+      document.getElementById('nav').classList.remove('on');
+    } else {
+      ob.style.display='none';
+    }
+    document.getElementById('ob-next').addEventListener('click',function(){
+      if(obStep<1){obStep++;obShow();}else{obFinish();}
+    });
+    document.getElementById('ob-skip').addEventListener('click',obFinish);
+    document.getElementById('ob-avatars').addEventListener('click',function(e){
+      var btn=e.target.closest('.ob-av'); if(!btn) return;
+      document.querySelectorAll('.ob-av').forEach(function(b){b.style.borderColor='transparent';b.style.background='rgba(255,255,255,.12)';});
+      btn.style.borderColor='#fff'; btn.style.background='rgba(255,255,255,.25)';
+      obAv=btn.dataset.av;
+    });
+    document.getElementById('ob-ages').addEventListener('click',function(e){
+      var btn=e.target.closest('.ob-age'); if(!btn) return;
+      document.querySelectorAll('.ob-age').forEach(function(b){b.style.borderColor='rgba(255,255,255,.2)';b.style.background='rgba(255,255,255,.1)';b.style.color='rgba(255,255,255,.8)';});
+      btn.style.borderColor='#fff'; btn.style.background='rgba(255,255,255,.25)'; btn.style.color='#fff';
+      obAge=btn.dataset.age;
+    });
+});
+
+/* ═══ ONBOARDING JS ═══ */
+(function(){
+  var obStep=0, obAv='🦁', obAge='';
+  function obShow(){
+    document.getElementById('ob-slide-0').style.display=obStep===0?'block':'none';
+    document.getElementById('ob-slide-1').style.display=obStep===1?'block':'none';
+    document.getElementById('ob-dot-0').style.cssText='width:'+(obStep===0?'24':'8')+'px;height:8px;border-radius:999px;background:'+(obStep===0?'#fff':'rgba(255,255,255,.3)')+';transition:all .3s';
+    document.getElementById('ob-dot-1').style.cssText='width:'+(obStep===1?'24':'8')+'px;height:8px;border-radius:999px;background:'+(obStep===1?'#fff':'rgba(255,255,255,.3)')+';transition:all .3s';
+    document.getElementById('ob-next').textContent=obStep===1?'¡Empezar! 🚀':'Siguiente →';
+  }
+  function obFinish(){
+    var nameEl=document.getElementById('ob-name');
+    G.kidName=(nameEl&&nameEl.value.trim())||'Campeón';
+    G.kidAvatar=obAv||'🦁';
+    G.kidAge=obAge||'';
+    save(); updateUI(); renderHomeModules(); renderParent();
+    document.getElementById('screen-onboarding').style.display='none';
+    document.getElementById('nav').classList.add('on');
+    goTo('home');
+  }
