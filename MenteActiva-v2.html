@@ -256,10 +256,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--text);max-width:430p
 <body>
 <div id="toast"></div>
 
-<!-- ══ SPLASH ══ -->
-<div id="splash">
-  <span class="sp-logo">🧠</span>
-  <div class="sp-title">Mente Activa</div>
+
   <div class="sp-sub">Entrenamiento inteligente para niños</div>
   <div class="sp-badge"><div class="sp-dot"></div>Powered by <strong style="color:var(--teal);margin-left:3px">Neuro PlayKit™</strong></div>
   <div class="sp-progress"><div class="sp-bar" id="spBar"></div></div>
@@ -2127,25 +2124,8 @@ function addHabit(){
 /* ═══════════════════════════════════════════════
    INIT GLOBAL
 ═══════════════════════════════════════════════ */
-// Splash - usar múltiples métodos para asegurar que desaparezca
-function hideSplash(){
-  const sp=document.getElementById('splash');
-  if(!sp)return;
-  const bar=document.getElementById('spBar');
-  if(bar)bar.style.width='100%';
-  setTimeout(function(){
-    sp.style.opacity='0';
-    sp.style.pointerEvents='none';
-    setTimeout(function(){if(sp.parentNode)sp.parentNode.removeChild(sp);},600);
-  },1800);
-}
-// Intentar con load
-window.addEventListener('load',hideSplash);
-// Fallback: si load no dispara en 3 segundos, forzar
-setTimeout(hideSplash,3000);
-// También con DOMContentLoaded como backup
+
 document.addEventListener('DOMContentLoaded',()=>{
-  setTimeout(hideSplash,100);
   load();
   renderModGrid(MOD_GAMES,'gridGames');
   renderModGrid(MOD_LANG,'gridLang');
