@@ -710,10 +710,17 @@ const MOD_LANG=[
 const MOD_STUDY=[
   {id:'estudio',nm:'Modo Estudio',ds:'Pomodoro + pausas activas',e:'🍅',c:'c4',free:true},
 ];
+function renderHomeModules(){
+  renderModGrid(MOD_GAMES,'gridGames');
+  renderModGrid(MOD_LANG,'gridLang');
+  renderModGrid(MOD_STUDY,'gridStudy');
+  const pw=document.getElementById('homePW');
+  if(pw) pw.style.display=(!G.packs||G.packs.length===0)?'block':'none';
+}
 function renderModGrid(mods,elId){
   const el=document.getElementById(elId);if(!el)return;el.innerHTML='';
   mods.forEach(m=>{
-    const locked=!m.free&&!G.premium;
+    const locked=!m.free&&!hasPack(m.id||'')&&!isPremium();
     const div=document.createElement('button');
     div.className='mtile '+m.c;
     div.innerHTML=`${locked?'<span class="lk">🔒 PRO</span>':''}<span class="ico">${m.e}</span><span class="nm">${m.nm}</span><span class="ds">${m.ds}</span><span class="nk">NKT™</span>`;
@@ -1379,6 +1386,148 @@ const PATTERNS=[
 ];
 function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
 function shuffle(a){return[...a].sort(()=>Math.random()-.5);}
+
+const LECTURAS=[
+  {id:'l1',tier:'free',t:'El gato',e:'🐱',text:'Ana tiene un gato. Le gusta jugar con el. El gato es gordo y gris. Ella ama a su gato.',
+   qs:[{q:'¿Que tiene Ana?',opts:['Un perro','Un gato','Un pajaro'],c:1},{q:'¿Como es el gato?',opts:['Delgado y negro','Gordo y gris','Pequeño y blanco'],c:1},{q:'¿Que siente Ana?',opts:['Le da miedo','Lo ama','Le aburre'],c:1}]},
+  {id:'l2',tier:'free',t:'El pastel',e:'🎂',text:'Mi mama hizo un gran pastel de chocolate para mi cumpleaños. Tenia muchas velas. Sople todas las velas de un soplo.',
+   qs:[{q:'¿De que sabor era?',opts:['Fresa','Vainilla','Chocolate'],c:2},{q:'¿Para que era?',opts:['Para una fiesta','Para mi cumpleaños','Para la cena'],c:1},{q:'¿Que hice con las velas?',opts:['Las apague con agua','Las sople','Las deje encendidas'],c:1}]},
+  {id:'l3',tier:'free',t:'El oso Simon',e:'🐻',text:'Simon es un oso cafe que vive en el bosque. Le gusta comer miel y pescar. En invierno duerme en su cueva.',
+   qs:[{q:'¿De que color es?',opts:['Negro','Blanco','Cafe'],c:2},{q:'¿Que come?',opts:['Solo frutas','Miel y peces','Solo hierba'],c:1},{q:'¿Que hace en invierno?',opts:['Juega en la nieve','Duerme en su cueva','Viaja'],c:1}]},
+  {id:'l4',tier:'pack',t:'Pepe el pato',e:'🦆',text:'Pepe es un pato que vive en un lago. Le gustan los peces. Nada todos los dias. Tiene un pico amarillo.',
+   qs:[{q:'¿Donde vive Pepe?',opts:['En un rio','En un lago','En el mar'],c:1},{q:'¿Que le gustan?',opts:['Los gusanos','Los peces','Las flores'],c:1},{q:'¿Como es su pico?',opts:['Rojo','Verde','Amarillo'],c:2}]},
+  {id:'l5',tier:'pack',t:'La rana saltarina',e:'🐸',text:'La rana vive en el lago. Le gusta saltar de piedra en piedra. Come insectos. Es de color verde.',
+   qs:[{q:'¿Donde vive?',opts:['En el lago','En el arbol','En el desierto'],c:0},{q:'¿Que come?',opts:['Flores','Insectos','Peces'],c:1},{q:'¿De que color es?',opts:['Azul','Verde','Rojo'],c:1}]},
+  {id:'l6',tier:'pack',t:'El conejo Pipo',e:'🐰',text:'Pipo es un conejo blanco. Le encanta saltar. Come zanahorias. Duerme en su conejera.',
+   qs:[{q:'¿De que color es?',opts:['Blanco','Gris','Negro'],c:0},{q:'¿Que come?',opts:['Galletas','Zanahorias','Manzanas'],c:1},{q:'¿Donde duerme?',opts:['En la casa','En su conejera','En el jardin'],c:1}]},
+  {id:'l7',tier:'pack',t:'Tito la tortuga',e:'🐢',text:'Tito es una tortuga lenta pero inteligente. Lleva su casa en el lomo. Come hojas y frutas.',
+   qs:[{q:'¿Como es Tito?',opts:['Rapida e impaciente','Lenta pero inteligente','Rapida y fuerte'],c:1},{q:'¿Que lleva en el lomo?',opts:['Una mochila','Su casa','Un escudo'],c:1},{q:'¿Que come?',opts:['Insectos','Peces','Hojas y frutas'],c:2}]},
+  {id:'l8',tier:'premium',t:'El dragon Chispa',e:'🐲',text:'Chispa es un dragon pequeño. Quiere aprender a volar pero le da miedo. La mariposa le enseña a ser valiente. Un dia volo muy alto.',
+   qs:[{q:'¿Como se llama?',opts:['Fuego','Chispa','Llama'],c:1},{q:'¿Que quiere aprender?',opts:['A nadar','A cantar','A volar'],c:2},{q:'¿Quien le enseña?',opts:['El lobo','La mariposa','La rana'],c:1}]},
+  {id:'l9',tier:'premium',t:'La estrella perdida',e:'⭐',text:'Una estrella se cayo del cielo. Aterrizo en el jardin de Camila. Lloraba porque queria volver a casa. Camila soplo y la estrella volo al cielo.',
+   qs:[{q:'¿Que le paso?',opts:['Se apago','Se cayo del cielo','Exploto'],c:1},{q:'¿Donde cayo?',opts:['En el mar','En el bosque','En el jardin de Camila'],c:2},{q:'¿Como volvio?',opts:['La lanzo Camila','Camila soplo','Se fue sola'],c:1}]},
+  {id:'l10',tier:'premium',t:'El robot amigo',e:'🤖',text:'Roberto era un robot del futuro. Ayudaba a los niños. Su favorito era leerles cuentos. Los niños lo querian mucho.',
+   qs:[{q:'¿Que era Roberto?',opts:['Un perro','Un robot','Un niño'],c:1},{q:'¿Que le gustaba?',opts:['Lavar platos','Leer cuentos','Hacer tareas'],c:1},{q:'¿Por que lo querian?',opts:['Era fuerte','Era amable','Era rapido'],c:1}]},
+];
+const SENTENCES=[
+  {id:'s1',tier:'free',e:'🐻',hint:'Un oso paseando',words:['Ese','oso','pasea.'],answer:'Ese oso pasea.'},
+  {id:'s2',tier:'free',e:'👩',hint:'Una mama amorosa',words:['Mi','mama','me','ama.'],answer:'Mi mama me ama.'},
+  {id:'s3',tier:'free',e:'🐕',hint:'Nino con su perro',words:['Pepe','ama','a','Pipo.'],answer:'Pepe ama a Pipo.'},
+  {id:'s4',tier:'pack',e:'🎾',hint:'Nina jugando tenis',words:['A','Erika','le','gusta','el','tenis.'],answer:'A Erika le gusta el tenis.'},
+  {id:'s5',tier:'pack',e:'🌸',hint:'Elena en el jardin',words:['Elena','riega','las','flores.'],answer:'Elena riega las flores.'},
+  {id:'s6',tier:'pack',e:'🐱',hint:'El gato de Luisa',words:['El','gato','de','Luisa','es','cafe.'],answer:'El gato de Luisa es cafe.'},
+  {id:'s7',tier:'pack',e:'⚽',hint:'Ninos jugando',words:['Los','ninos','juegan','en','el','parque.'],answer:'Los ninos juegan en el parque.'},
+  {id:'s8',tier:'premium',e:'🦋',hint:'Mariposa volando',words:['La','mariposa','vuela','sobre','las','flores.'],answer:'La mariposa vuela sobre las flores.'},
+  {id:'s9',tier:'premium',e:'📖',hint:'Tomas leyendo',words:['Tomas','lee','un','libro','muy','largo.'],answer:'Tomas lee un libro muy largo.'},
+  {id:'s10',tier:'premium',e:'🌙',hint:'Luna de noche',words:['La','luna','brilla','en','la','noche.'],answer:'La luna brilla en la noche.'},
+];
+const ENCIERRA=[
+  {id:'e1',tier:'free',e:'⚽',opts:['Es una pelota','Es una paloma'],correct:0},
+  {id:'e2',tier:'free',e:'🦆',opts:['Es un perro','Es un pato'],correct:1},
+  {id:'e3',tier:'free',e:'🍎',opts:['Es una manzana','Es una montaña'],correct:0},
+  {id:'e4',tier:'pack',e:'🎒',opts:['Es una motocicleta','Es una mochila'],correct:1},
+  {id:'e5',tier:'pack',e:'🚗',opts:['Es un carro','Es un collar'],correct:0},
+  {id:'e6',tier:'pack',e:'🐋',opts:['Es una ballena','Es una bandera'],correct:0},
+  {id:'e7',tier:'pack',e:'🐢',opts:['Es una torta','Es una tortuga'],correct:1},
+  {id:'e8',tier:'pack',e:'✈️',opts:['Flota en el agua','Puede volar'],correct:1},
+  {id:'e9',tier:'pack',e:'⛵',opts:['Flota en el agua','Puede volar'],correct:0},
+  {id:'e10',tier:'premium',e:'🦁',opts:['Es un animal domestico','Es un animal salvaje'],correct:1},
+  {id:'e11',tier:'premium',e:'🌵',opts:['Es una planta del desierto','Es una planta del mar'],correct:0},
+  {id:'e12',tier:'premium',e:'🎸',opts:['Es un instrumento musical','Es un deporte'],correct:0},
+];
+let lecInit=false;
+function initLec(){if(lecInit)return;lecInit=true;renderLec();}
+function renderLec(){
+  const el=document.getElementById('lecContent');if(!el)return;
+  el.innerHTML='';
+  var cats=[
+    {key:'mini',label:'Mini Lecturas',e:'📖',c:'linear-gradient(135deg,#52c41a,#237804)'},
+    {key:'ordenar',label:'Ordena la Oracion',e:'🔀',c:'linear-gradient(135deg,#4dabf7,#1971c2)'},
+    {key:'encierra',label:'Encierra la Frase',e:'🎯',c:'linear-gradient(135deg,#fa8c16,#ad4e00)'},
+  ];
+  cats.forEach(function(cat){
+    var btn=document.createElement('button');
+    var data=cat.key==='mini'?LECTURAS:cat.key==='ordenar'?SENTENCES:ENCIERRA;
+    var free=data.filter(function(s){return s.tier==='free';}).length;
+    btn.style.cssText='width:100%;border:none;border-radius:15px;padding:14px;background:'+cat.c+';color:#fff;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;box-shadow:var(--shadow);margin-bottom:9px';
+    btn.innerHTML='<span style="font-size:1.9rem">'+cat.e+'</span><div><div style="font-family:var(--fd);font-size:.93rem;font-weight:900">'+cat.label+'</div><div style="font-size:.72rem;opacity:.8">'+free+' gratis · '+data.length+' en total</div></div>';
+    btn.addEventListener('click',function(){startLecCat(cat.key);});
+    el.appendChild(btn);
+  });
+  if(!hasPack('lectura')){
+    var lk=document.createElement('div');
+    lk.style.cssText='background:linear-gradient(145deg,var(--p),var(--pdk));border-radius:var(--r);padding:16px;text-align:center;margin-top:8px;box-shadow:var(--shadow-lg)';
+    lk.innerHTML='<div style="font-size:1.8rem;margin-bottom:6px">🔒</div><div style="font-family:var(--fd);font-size:1rem;font-weight:900;color:#fff;margin-bottom:4px">Pack Lectura - $1.990</div><div style="font-size:.82rem;color:rgba(255,255,255,.65);margin-bottom:10px">Desbloquea 7+ lecturas mas</div>';
+    var lb=document.createElement('button');lb.style.cssText='background:#fff;border:none;border-radius:999px;padding:11px 22px;font-family:var(--fd);font-size:.9rem;font-weight:900;color:var(--p);cursor:pointer';lb.textContent='Comprar Pack - $1.990';lb.addEventListener('click',function(){openPremium('lectura');});lk.appendChild(lb);el.appendChild(lk);
+  }
+}
+function startLecCat(cat){
+  var el=document.getElementById('lecContent');if(!el)return;
+  var allData=cat==='mini'?LECTURAS:cat==='ordenar'?SENTENCES:ENCIERRA;
+  var items=allData.filter(function(s){if(s.tier==='free')return true;if(s.tier==='pack')return hasPack('lectura');if(s.tier==='premium')return isPremium();return false;});
+  el.innerHTML='';
+  var back=document.createElement('button');back.className='btn btn-gray btn-sm';back.style.marginBottom='12px';back.textContent='← Categorias';back.addEventListener('click',function(){lecInit=false;initLec();});el.appendChild(back);
+  var exDiv=document.createElement('div');el.appendChild(exDiv);
+  if(cat==='mini') renderMiniLecList(items,exDiv,back);
+  else if(cat==='ordenar') startOrdenar(items,0,exDiv);
+  else if(cat==='encierra') startEncierra2(items,0,exDiv);
+}
+function renderMiniLecList(items,container,backBtn){
+  container.innerHTML='<div style="font-family:var(--fd);font-size:.95rem;font-weight:900;color:var(--text);margin-bottom:10px">Elige una lectura</div>';
+  items.forEach(function(s){
+    var done=G.completed['lec_'+s.id];
+    var btn=document.createElement('button');
+    btn.style.cssText='width:100%;border:2px solid '+(done?'var(--green)':'var(--border)')+';background:var(--card);border-radius:13px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:var(--shadow)';
+    btn.innerHTML='<span style="font-size:1.5rem">'+(s.e||'📖')+'</span><div style="text-align:left"><div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--text)">'+s.t+(done?' ✅':'')+'</div><div style="font-size:.7rem;color:var(--muted);font-weight:700">'+s.qs.length+' preguntas</div></div>';
+    btn.addEventListener('click',function(){
+      var exWithCtx=s.qs.map(function(q){return Object.assign({},q,{context:s.text});});
+      container.innerHTML='';
+      var bb=document.createElement('button');bb.className='btn btn-gray btn-sm';bb.style.marginBottom='12px';bb.textContent='← Lecturas';bb.addEventListener('click',function(){renderMiniLecList(items,container,backBtn);});container.appendChild(bb);
+      var exD=document.createElement('div');container.appendChild(exD);
+      buildExerciseUI(exD,exWithCtx,function(score,total){
+        G.completed['lec_'+s.id]=true;save();
+        buildFinishCard(exD,score,total,'lectura',function(){bb.click();},function(){renderMiniLecList(items,container,backBtn);});
+      });
+    });
+    container.appendChild(btn);
+  });
+}
+function startOrdenar(items,idx,container){
+  if(idx>=items.length){addPts(20);toast('Completado!');lecInit=false;initLec();return;}
+  var s=items[idx];var shuffled=[...s.words].sort(function(){return Math.random()-.5;});var sel=[],usedIdx=new Set();
+  function renderUI(){
+    container.innerHTML='<div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--p);margin-bottom:5px">Ordena la oracion '+(idx+1)+'/'+items.length+'</div>'
+      +'<div style="text-align:center;font-size:2.5rem;margin-bottom:6px">'+s.e+'</div>'
+      +'<div style="font-size:.8rem;font-weight:700;color:var(--muted);margin-bottom:8px">'+s.hint+'</div>'
+      +'<div id="orSel" style="min-height:44px;background:var(--bg2);border-radius:10px;padding:8px;margin-bottom:10px;display:flex;flex-wrap:wrap;gap:5px;border:2px dashed var(--border)">'
+      +(sel.length?sel.map(function(w,i){return'<span class="sel-w" data-si="'+i+'" style="background:var(--p);color:#fff;border-radius:999px;padding:5px 11px;font-size:.85rem;font-weight:800;cursor:pointer">x '+w+'</span>';}).join(''):'<span style="font-size:.75rem;color:var(--muted)">Tu oracion aqui...</span>')+'</div>'
+      +'<div id="orWords" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">'
+      +shuffled.map(function(w,i){return usedIdx.has(i)?'<span style="border:2px solid var(--border);border-radius:999px;padding:7px 12px;font-size:.85rem;opacity:.3">'+w+'</span>':'<button class="word-b" data-wi="'+i+'" data-w="'+w+'" style="border:2px solid var(--border);background:var(--card);border-radius:999px;padding:7px 12px;font-size:.85rem;font-weight:800;cursor:pointer">'+w+'</button>';}).join('')+'</div>'
+      +'<div style="display:flex;gap:6px"><button id="orVer" class="btn btn-g btn-sm">Verificar</button><button id="orClr" class="btn btn-gray btn-sm">Borrar</button></div>';
+    container.querySelectorAll('.word-b').forEach(function(b){b.addEventListener('click',function(){sel.push(this.dataset.w);usedIdx.add(parseInt(this.dataset.wi));renderUI();});});
+    container.querySelectorAll('.sel-w').forEach(function(sp){sp.addEventListener('click',function(){var si=parseInt(this.dataset.si);var w=sel[si];sel.splice(si,1);var wi=shuffled.findIndex(function(x,i){return x===w&&usedIdx.has(i);});if(wi>=0)usedIdx.delete(wi);renderUI();});});
+    document.getElementById('orVer').addEventListener('click',function(){if(sel.join(' ')===s.answer){addPts(20);toast('Correcto! +20');G.completed['ord_'+s.id]=true;save();setTimeout(function(){startOrdenar(items,idx+1,container);},700);}else{toast('Orden incorrecto');sel=[];usedIdx=new Set();renderUI();}});
+    document.getElementById('orClr').addEventListener('click',function(){sel=[];usedIdx=new Set();renderUI();});
+  }
+  renderUI();
+}
+function startEncierra2(items,idx,container){
+  if(idx>=items.length){addPts(10);toast('Completado!');lecInit=false;initLec();return;}
+  var d=items[idx];
+  container.innerHTML='<div style="font-family:var(--fd);font-size:.88rem;font-weight:900;color:var(--orange);margin-bottom:8px">Encierra la frase correcta '+(idx+1)+'/'+items.length+'</div>'
+    +'<div style="text-align:center;font-size:5rem;margin-bottom:14px">'+d.e+'</div>'
+    +'<div id="encOpts" style="display:grid;gap:9px"></div>';
+  var optsDiv=document.getElementById('encOpts');
+  d.opts.forEach(function(opt,i){
+    var btn=document.createElement('button');btn.className='opt-btn';btn.textContent=opt;
+    btn.addEventListener('click',function(){
+      optsDiv.querySelectorAll('.opt-btn').forEach(function(b,j){b.disabled=true;if(j===d.correct)b.classList.add('correct');});
+      if(i===d.correct){addPts(10);toast('Correcto! +10');}else{this.classList.add('wrong');toast('Era: '+d.opts[d.correct]);}
+      G.completed['enc_'+d.id]=true;save();setTimeout(function(){startEncierra2(items,idx+1,container);},900);
+    });
+    optsDiv.appendChild(btn);
+  });
+}
 let matInit=false;
 function initMat(){if(matInit)return;matInit=true;renderMat();}
 function renderMat(){
@@ -2127,9 +2276,7 @@ function addHabit(){
 
 document.addEventListener('DOMContentLoaded',()=>{
   load();
-  renderModGrid(MOD_GAMES,'gridGames');
-  renderModGrid(MOD_LANG,'gridLang');
-  renderModGrid(MOD_STUDY,'gridStudy');
+  renderHomeModules();
   renderParent();updateUI();
 
   // Tabs
@@ -2210,3 +2357,67 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('nav').classList.add('on');
     goTo('home');
   }
+
+function buildFinishCard(container, score, total, packId, onRetry, onNext){
+  var pct=Math.round((score/total)*100);
+  var emoji=pct>=80?'🏆':pct>=60?'🌟':pct>=40?'💪':'🌱';
+  var title=pct>=80?'Increible!':pct>=60?'Muy bien!':pct>=40?'Buen esfuerzo!':'Sigue practicando!';
+  var pts=score*15;
+  addPts(pts);
+  container.innerHTML='';
+  var card=document.createElement('div');card.className='result-card';
+  card.innerHTML='<span class="result-emoji">'+emoji+'</span><div class="result-title">'+title+'</div>'
+    +'<div class="result-sub">'+score+' de '+total+' correctas · +'+pts+' puntos</div>'
+    +'<div style="display:flex;gap:8px;margin-top:8px">'
+    +'<div style="flex:1;background:var(--bg2);border-radius:12px;padding:10px;text-align:center;border:1.5px solid var(--border)"><div style="font-family:var(--fd);font-size:1.6rem;font-weight:900;color:var(--p)">'+score+'/'+total+'</div><div style="font-size:.65rem;color:var(--muted);font-weight:700">CORRECTAS</div></div>'
+    +'<div style="flex:1;background:var(--bg2);border-radius:12px;padding:10px;text-align:center;border:1.5px solid var(--border)"><div style="font-family:var(--fd);font-size:1.6rem;font-weight:900;color:var(--orange)">+'+pts+'</div><div style="font-size:.65rem;color:var(--muted);font-weight:700">PUNTOS</div></div>'
+    +'</div>';
+  var retryBtn=document.createElement('button');retryBtn.className='btn btn-gray';retryBtn.style.marginTop='12px';retryBtn.textContent='Intentar de nuevo';retryBtn.addEventListener('click',onRetry);card.appendChild(retryBtn);
+  var nextBtn=document.createElement('button');nextBtn.className='btn btn-p';nextBtn.style.marginTop='8px';nextBtn.textContent='Siguiente →';nextBtn.addEventListener('click',onNext);card.appendChild(nextBtn);
+  container.appendChild(card);
+}
+function buildExerciseUI(container, exercises, onFinish){
+  var idx=0, score=0, answered=false;
+  function render(){
+    if(idx>=exercises.length){onFinish(score,exercises.length);return;}
+    var ex=exercises[idx];
+    var pct=Math.round((idx/exercises.length)*100);
+    container.innerHTML='';
+    // Score bar
+    var sb=document.createElement('div');sb.className='score-bar';
+    sb.innerHTML='<div class="score-chip"><div class="sc-v">'+score+'</div><div class="sc-l">Correctas</div></div>'
+      +'<div class="score-chip"><div class="sc-v">'+idx+'</div><div class="sc-l">Hechas</div></div>'
+      +'<div class="score-chip"><div class="sc-v">'+(exercises.length-idx)+'</div><div class="sc-l">Restan</div></div>';
+    container.appendChild(sb);
+    // Progress
+    var pg=document.createElement('div');pg.className='prog';pg.innerHTML='<div class="prog-fill" style="width:'+pct+'%"></div>';container.appendChild(pg);
+    // Card
+    var card=document.createElement('div');card.className='ex-card';
+    // Context (texto lectura)
+    if(ex.context){var ctx=document.createElement('div');ctx.style.cssText='background:#FFFBF0;border-radius:12px;padding:12px;margin-bottom:10px;border:1.5px solid #FCD34D;font-size:.88rem;line-height:1.75;color:var(--text)';ctx.textContent=ex.context;card.appendChild(ctx);}
+    // Pregunta
+    var qBox=document.createElement('div');qBox.className='question-box';qBox.innerHTML='<div class="question-text">'+ex.q+'</div>';card.appendChild(qBox);
+    // Opciones
+    var optsDiv=document.createElement('div');optsDiv.className='opts-grid';
+    ex.opts.forEach(function(opt,i){
+      var btn=document.createElement('button');btn.className='opt-btn';btn.textContent=opt;
+      btn.dataset.idx=i;
+      btn.addEventListener('click',function(){
+        if(answered)return;answered=true;
+        var isOk=(i===ex.c);
+        optsDiv.querySelectorAll('.opt-btn').forEach(function(b){
+          b.disabled=true;
+          if(parseInt(b.dataset.idx)===ex.c)b.classList.add('correct');
+        });
+        if(isOk){score++;toast('Correcto!');}
+        else{this.classList.add('wrong');toast('Era: '+ex.opts[ex.c]);}
+        setTimeout(function(){idx++;answered=false;render();},900);
+      });
+      optsDiv.appendChild(btn);
+    });
+    card.appendChild(optsDiv);
+    container.appendChild(card);
+  }
+  render();
+}
+
